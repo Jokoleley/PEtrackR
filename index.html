@@ -1,0 +1,4079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PE Learning Hub - Progressive Quizzes</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            max-width: 100vw;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .screen {
+            display: none;
+            padding: 20px;
+            min-height: calc(100vh - 40px);
+            animation: slideIn 0.3s ease-in-out;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .progress-ring {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: conic-gradient(#4CAF50 0deg 216deg, #e0e0e0 216deg 360deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        /* Login Screen */
+        .login-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .login-card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-title {
+            font-size: 2.5rem;
+            color: #667eea;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Dashboard */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #e0e0e0;
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            transition: width 0.5s ease;
+        }
+
+        .badges-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* Main Menu */
+        .main-menu {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            align-items: center;
+            min-height: 60vh;
+        }
+
+        .menu-button {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            min-width: 250px;
+        }
+
+        .menu-button:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .menu-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .menu-title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Sports Grid */
+        .sports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .sport-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .sport-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .sport-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .sport-name {
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Quiz Levels */
+        .quiz-levels {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .level-button {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .level-button:hover {
+            transform: translateY(-5px);
+        }
+
+        .level-button.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .level-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .level-progress {
+            margin-top: 15px;
+        }
+
+        /* Quiz Topics Grid */
+        .quiz-topics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .quiz-topic-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .quiz-topic-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .quiz-topic-card.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #f5f5f5;
+        }
+
+        .quiz-topic-card.completed {
+            background: linear-gradient(135deg, #4CAF50, #8BC34A);
+            color: white;
+        }
+
+        .lock-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.2rem;
+            color: #999;
+        }
+
+        .quiz-score {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #FFD700;
+            color: #333;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        /* Quiz Interface */
+        .quiz-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 800px;
+            margin: 0 auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .quiz-intro {
+            background: linear-gradient(135deg, #f0f8ff, #e6f3ff);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-left: 5px solid #667eea;
+        }
+
+        .quote-section {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .quote-text {
+            font-size: 1.2rem;
+            font-style: italic;
+            color: #333;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .quote-author {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .society-text {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #555;
+            text-align: justify;
+        }
+
+        .content-toggle {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .toggle-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .toggle-btn:hover {
+            background: #5a67d8;
+        }
+
+        .quiz-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .quiz-progress {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .question-counter {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 25px;
+            line-height: 1.4;
+        }
+
+        .answers-grid {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .answer-btn {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 15px 20px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+
+        .answer-btn:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .answer-btn.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .answer-btn.correct {
+            border-color: #4CAF50;
+            background: #4CAF50;
+            color: white;
+        }
+
+        .answer-btn.incorrect {
+            border-color: #f44336;
+            background: #f44336;
+            color: white;
+        }
+
+        .explanation {
+            background: #f0f8ff;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .explanation.show {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .quiz-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .nav-btn:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .nav-btn.back {
+            background: #718096;
+        }
+
+        /* Results Screen */
+        .results-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .results-score {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+
+        .results-feedback {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: #555;
+        }
+
+        .results-breakdown {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .breakdown-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .breakdown-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .breakdown-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Lesson Screen Styles */
+        .lesson-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .lesson-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .lesson-header h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 2rem;
+        }
+
+        .lesson-purpose {
+            font-size: 1.1rem;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .core-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .exercise-section, .exercise-purpose {
+            background: #f8f9ff;
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+
+        .exercise-section h3, .exercise-purpose h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .exercise-section p, .exercise-purpose p {
+            color: #555;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .assessment-section {
+            background: #f9f9f9;
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .assessment-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .assessment-intro {
+            color: #666;
+            margin-bottom: 25px;
+            font-style: italic;
+        }
+
+        .assessment-categories {
+            display: grid;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .assessment-category {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .category-header h4 {
+            margin: 0;
+            color: #333;
+            font-size: 1.2rem;
+        }
+
+        .category-progress {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .category-progress .progress-bar {
+            width: 100px;
+            height: 8px;
+        }
+
+        .criteria-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .criterion-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .criterion-item:hover {
+            background: #e9ecef;
+        }
+
+        .criterion-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .criterion-text {
+            flex: 1;
+            color: #555;
+            line-height: 1.4;
+        }
+
+        .criterion-item.checked {
+            background: #e8f5e8;
+            border-left: 4px solid #28a745;
+        }
+
+        .criterion-item.checked .criterion-text {
+            color: #155724;
+            font-weight: 500;
+        }
+
+        .overall-progress {
+            text-align: center;
+            padding: 25px;
+            background: white;
+            border-radius: 12px;
+            border: 2px solid #667eea;
+            margin-bottom: 25px;
+        }
+
+        .overall-progress h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .progress-bar.large {
+            height: 20px;
+            margin-bottom: 10px;
+        }
+
+        .overall-progress-text {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .lesson-actions {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .lesson-actions .nav-btn {
+            padding: 15px 30px;
+            font-size: 1.1rem;
+        }
+
+        /* Progress Colors */
+        .motor-progress {
+            background: linear-gradient(90deg, #ff6b6b, #ff8e8e);
+        }
+
+        .methodological-progress {
+            background: linear-gradient(90deg, #4ecdc4, #7fdbda);
+        }
+
+        .social-progress {
+            background: linear-gradient(90deg, #45b7d1, #74c7e3);
+        }
+
+        .overall-progress-fill {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        /* Assessment Dashboard Styles */
+        .assessment-dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        /* Mastery Matrix Styles */
+        .mastery-matrix {
+            margin-bottom: 40px;
+        }
+
+        .matrix-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .matrix-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .level-indicators {
+            display: flex;
+            gap: 15px;
+        }
+
+        .level-indicator {
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .level-indicator.level-1 {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .level-indicator.level-2 {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .level-indicator.level-3 {
+            background: #e8f5e8;
+            color: #388e3c;
+        }
+
+        .level-indicator.level-4 {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .skills-matrix {
+            display: grid;
+            gap: 20px;
+        }
+
+        .skill-row {
+            display: grid;
+            grid-template-columns: 300px 1fr 120px;
+            gap: 20px;
+            align-items: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+            transition: transform 0.3s;
+        }
+
+        .skill-row:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .skill-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .skill-icon {
+            font-size: 2.5rem;
+            width: 60px;
+            text-align: center;
+        }
+
+        .skill-details {
+            flex: 1;
+        }
+
+        .skill-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .skill-description {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .level-progression-matrix {
+            display: flex;
+            gap: 10px;
+        }
+
+        .level-box {
+            flex: 1;
+            padding: 12px 8px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #e0e0e0;
+            background: white;
+            transition: all 0.3s;
+            min-width: 80px;
+        }
+
+        .level-box.completed {
+            background: linear-gradient(135deg, #4CAF50, #8BC34A);
+            color: white;
+            border-color: #4CAF50;
+        }
+
+        .level-box.current {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .level-box.locked {
+            background: #f5f5f5;
+            color: #999;
+            border-color: #ddd;
+        }
+
+        .level-number {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .level-status {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .current-rating {
+            text-align: center;
+        }
+
+        .rating-badge {
+            padding: 10px 15px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1rem;
+            color: white;
+        }
+
+        .rating-badge.level-1 {
+            background: linear-gradient(135deg, #1976d2, #42a5f5);
+        }
+
+        .rating-badge.level-2 {
+            background: linear-gradient(135deg, #7b1fa2, #ba68c8);
+        }
+
+        .rating-badge.level-3 {
+            background: linear-gradient(135deg, #388e3c, #66bb6a);
+        }
+
+        .rating-badge.level-4 {
+            background: linear-gradient(135deg, #f57c00, #ffb74d);
+        }
+
+        /* Radar Chart Styles */
+        .radar-chart-container {
+            margin: 40px 0;
+            text-align: center;
+        }
+
+        .chart-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .radar-chart {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .radar-svg {
+            width: 100%;
+            height: auto;
+        }
+
+        /* Progress Summary Styles */
+        .progress-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .summary-card {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9ff, #e6f3ff);
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+
+        .summary-icon {
+            font-size: 2.5rem;
+        }
+
+        .summary-content {
+            flex: 1;
+        }
+
+        .summary-title {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .summary-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .summary-description {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .dashboard-header h2 {
+            color: #667eea;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .dashboard-subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            font-style: italic;
+        }
+
+        .competence-areas {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .competence-card {
+            background: linear-gradient(135deg, #f8f9ff, #e6f3ff);
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 5px solid #667eea;
+            transition: transform 0.3s;
+        }
+
+        .competence-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .competence-card.motor-skills {
+            border-left-color: #ff6b6b;
+            background: linear-gradient(135deg, #fff5f5, #ffe6e6);
+        }
+
+        .competence-card.methodological-skills {
+            border-left-color: #4ecdc4;
+            background: linear-gradient(135deg, #f0fffe, #e6fffd);
+        }
+
+        .competence-card.social-skills {
+            border-left-color: #45b7d1;
+            background: linear-gradient(135deg, #f0f9ff, #e6f4ff);
+        }
+
+        .competence-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .competence-icon {
+            font-size: 2.5rem;
+        }
+
+        .competence-title {
+            flex: 1;
+        }
+
+        .competence-title h3 {
+            margin: 0;
+            color: #333;
+            font-size: 1.4rem;
+        }
+
+        .competence-subtitle {
+            color: #666;
+            font-size: 0.9rem;
+            margin: 5px 0 0 0;
+        }
+
+        .level-progression {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .level-item {
+            text-align: center;
+            padding: 15px 10px;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s;
+        }
+
+        .level-item.completed {
+            border-color: #4CAF50;
+            background: #f0f8f0;
+        }
+
+        .level-item.current {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .level-number {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .level-progress {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .overall-competence {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .competence-percentage {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .competence-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .skills-breakdown {
+            display: grid;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .skill-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .skill-item.motor {
+            border-left-color: #ff6b6b;
+        }
+
+        .skill-item.methodological {
+            border-left-color: #4ecdc4;
+        }
+
+        .skill-item.social {
+            border-left-color: #45b7d1;
+        }
+
+        .skill-name {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .skill-progress {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .skill-bar {
+            width: 80px;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .skill-fill {
+            height: 100%;
+            background: #667eea;
+            transition: width 0.5s ease;
+        }
+
+        .skill-percentage {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #667eea;
+            min-width: 35px;
+        }
+
+        .lesson-type-colors {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+
+        .type-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .type-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .type-dot.baseline { background: #6c757d; }
+        .type-dot.formative { background: #17a2b8; }
+        .type-dot.comparison { background: #ffc107; }
+        .type-dot.summative { background: #dc3545; }
+
+        /* Skill Criteria Modal */
+        .skill-criteria-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .skill-criteria-modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-close {
+            background: #f5f5f5;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .modal-close:hover {
+            background: #e0e0e0;
+        }
+
+        .skill-description {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 25px;
+            font-style: italic;
+        }
+
+        .level-criteria-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .level-criteria-item {
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 5px solid;
+            transition: all 0.3s;
+        }
+
+        .level-criteria-item.level-1 {
+            background: #e3f2fd;
+            border-left-color: #1976d2;
+        }
+
+        .level-criteria-item.level-2 {
+            background: #f3e5f5;
+            border-left-color: #7b1fa2;
+        }
+
+        .level-criteria-item.level-3 {
+            background: #e8f5e8;
+            border-left-color: #388e3c;
+        }
+
+        .level-criteria-item.level-4 {
+            background: #fff3e0;
+            border-left-color: #f57c00;
+        }
+
+        .level-criteria-item.current {
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .level-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .level-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .current-badge {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .level-description {
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .skill-row.clickable {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .skill-row.clickable:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .skill-row {
+                grid-template-columns: 250px 1fr 100px;
+                gap: 15px;
+                padding: 18px;
+            }
+
+            .skill-icon {
+                font-size: 2.2rem;
+            }
+
+            .skill-name {
+                font-size: 1.1rem;
+            }
+
+            .skill-description {
+                font-size: 0.85rem;
+            }
+
+            .level-progression-matrix {
+                gap: 8px;
+            }
+
+            .level-box {
+                padding: 10px 6px;
+                font-size: 0.85rem;
+                min-width: 70px;
+            }
+
+            .level-number {
+                font-size: 1rem;
+            }
+
+            .level-status {
+                font-size: 0.75rem;
+            }
+
+            .rating-badge {
+                font-size: 0.9rem;
+                padding: 8px 12px;
+            }
+
+            .assessment-dashboard {
+                padding: 25px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-menu {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .menu-button {
+                min-width: 200px;
+                padding: 30px;
+            }
+
+            .sports-grid, .quiz-topics-grid {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                gap: 15px;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .quiz-container, .results-container {
+                margin: 0 10px;
+                padding: 20px;
+            }
+
+            .results-breakdown {
+                grid-template-columns: 1fr;
+            }
+
+            .core-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .lesson-container {
+                margin: 0 10px;
+                padding: 20px;
+            }
+
+            .lesson-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .lesson-actions .nav-btn {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .competence-areas {
+                grid-template-columns: 1fr;
+            }
+
+            .level-progression {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .assessment-dashboard {
+                margin: 0 10px;
+                padding: 15px;
+            }
+
+            .dashboard-header h2 {
+                font-size: 1.8rem;
+            }
+
+            .dashboard-subtitle {
+                font-size: 1rem;
+            }
+
+            .competence-icon {
+                font-size: 2rem;
+            }
+
+            /* Mobile-first skill row layout */
+            .skill-row {
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+                padding: 20px 15px;
+                align-items: center;
+            }
+
+            .skill-info {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                gap: 10px;
+                width: 100%;
+            }
+
+            .skill-icon {
+                font-size: 2.5rem;
+            }
+
+            .skill-details {
+                text-align: center;
+            }
+
+            .skill-name {
+                font-size: 1.1rem;
+                margin-bottom: 5px;
+            }
+
+            .skill-description {
+                font-size: 0.9rem;
+                color: #666;
+            }
+
+            /* Mobile level progression - 2x2 grid */
+            .level-progression-matrix {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: 1fr 1fr;
+                gap: 10px;
+                width: 100%;
+                max-width: 280px;
+                margin: 0 auto;
+            }
+
+            .level-box {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                min-height: 60px;
+                padding: 12px 8px;
+                font-size: 0.85rem;
+                border-radius: 12px;
+                text-align: center;
+            }
+
+            .level-number {
+                font-size: 1rem;
+                font-weight: bold;
+                margin-bottom: 4px;
+            }
+
+            .level-status {
+                font-size: 0.75rem;
+                line-height: 1.2;
+            }
+
+            /* Mobile current rating */
+            .current-rating {
+                margin-top: 15px;
+            }
+
+            .rating-badge {
+                font-size: 0.9rem;
+                padding: 8px 16px;
+                border-radius: 20px;
+            }
+
+            .matrix-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .matrix-title {
+                font-size: 1.3rem;
+            }
+
+            .level-indicators {
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .level-indicator {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+
+            .progress-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-icon {
+                font-size: 2rem;
+            }
+
+            .summary-value {
+                font-size: 1.5rem;
+            }
+
+            /* Modal responsive adjustments */
+            .modal-content {
+                margin: 10px;
+                padding: 20px;
+                max-height: 85vh;
+            }
+
+            .modal-title {
+                font-size: 1.3rem;
+            }
+
+            .level-criteria-item {
+                padding: 15px;
+            }
+
+            .level-title {
+                font-size: 1.1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-card {
+                margin: 20px;
+                padding: 30px;
+            }
+
+            .sports-grid, .quiz-topics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .sport-icon {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Login Screen -->
+        <div id="login-screen" class="screen active">
+            <div class="login-container">
+                <div class="login-card">
+                    <h1 class="login-title">🏃‍♂️ PE Hub</h1>
+                    <form id="login-form">
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" id="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" required>
+                        </div>
+                        <button type="submit" class="login-btn">Login</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Screen -->
+        <div id="dashboard-screen" class="screen">
+            <div class="header">
+                <div class="logo">🏃‍♂️ PE Hub Dashboard</div>
+                <div class="user-info">
+                    <span id="welcome-text">Welcome, Student!</span>
+                    <div class="progress-ring" id="overall-progress">60%</div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <div class="card-title">📊 Quiz Progress</div>
+                    <div id="quiz-progress-details">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="quiz-progress-bar" style="width: 30%"></div>
+                        </div>
+                        <p id="quiz-progress-text">Level 1: 3 of 10 quizzes completed</p>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-title">🏆 Achievements</div>
+                    <div class="badges-container" id="badges-container">
+                        <div class="badge">First Steps</div>
+                        <div class="badge">Health Expert</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-title">📈 Statistics</div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-number" id="total-quizzes">3</div>
+                            <div class="stat-label">Quizzes Completed</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="avg-score">85%</div>
+                            <div class="stat-label">Average Score</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="current-level">1</div>
+                            <div class="stat-label">Current Level</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="next-unlock">7</div>
+                            <div class="stat-label">Quizzes to Next Level</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-title">🎯 Recent Activity</div>
+                    <div id="recent-activity">
+                        <p>✅ "Foundations of Health" - 90%</p>
+                        <p>✅ "Strong Body, Strong Mind" - 85%</p>
+                        <p>✅ "Fuel & Nutrition" - 80%</p>
+                        <p>🔒 "Team Spirit" - Unlocked!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="main-menu">
+                <div class="menu-button" onclick="showScreen('sports-screen')">
+                    <div class="menu-icon">⚽</div>
+                    <div class="menu-title">Sports</div>
+                </div>
+                <div class="menu-button" onclick="showScreen('quiz-levels-screen')">
+                    <div class="menu-icon">🧠</div>
+                    <div class="menu-title">Quiz</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sports Screen -->
+        <div id="sports-screen" class="screen">
+            <div class="header">
+                <div class="logo">⚽ Sports Menu</div>
+                <button class="nav-btn back" onclick="showScreen('dashboard-screen')">← Back</button>
+            </div>
+
+            <div class="sports-grid" id="sports-grid">
+                <!-- Sports will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Sport Lessons Screen -->
+        <div id="sport-lessons-screen" class="screen">
+            <div class="header">
+                <div class="logo" id="sport-lessons-title">⚽ Soccer Lessons</div>
+                <button class="nav-btn back" onclick="showScreen('sports-screen')">← Back to Sports</button>
+            </div>
+
+            <div class="quiz-topics-grid" id="sport-lessons-grid">
+                <!-- Sport lessons will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Assessment Dashboard Screen -->
+        <div id="assessment-dashboard-screen" class="screen">
+            <div class="header">
+                <div class="logo">📊 5-Skill Mastery Matrix</div>
+                <button class="nav-btn back" onclick="showScreen('sports-screen')">← Back to Sports</button>
+            </div>
+
+            <div class="assessment-dashboard">
+                <div class="dashboard-header">
+                    <h2>🎯 5-Skill Mastery Matrix</h2>
+                    <div class="dashboard-subtitle">Ultimate long-term progress view across Levels 1-4</div>
+                </div>
+
+                <!-- Mastery Matrix Grid -->
+                <div class="mastery-matrix">
+                    <div class="matrix-header">
+                        <div class="matrix-title">Current Skill Levels</div>
+                        <div class="level-indicators">
+                            <div class="level-indicator level-1">L1</div>
+                            <div class="level-indicator level-2">L2</div>
+                            <div class="level-indicator level-3">L3</div>
+                            <div class="level-indicator level-4">L4</div>
+                        </div>
+                    </div>
+
+                    <div class="skills-matrix">
+                        <!-- Motor Skill 1: Dribbling and Passing -->
+                        <div class="skill-row clickable" onclick="showSkillCriteria('motorSkill1', 2)">
+                            <div class="skill-info">
+                                <div class="skill-icon">🏃‍♂️</div>
+                                <div class="skill-details">
+                                    <div class="skill-name">Motor Skill 1</div>
+                                    <div class="skill-description">Dribbling and Passing Awareness</div>
+                                </div>
+                            </div>
+                            <div class="level-progression-matrix">
+                                <div class="level-box completed" data-level="1">
+                                    <div class="level-number">L1</div>
+                                    <div class="level-status">✓ Mastered</div>
+                                </div>
+                                <div class="level-box current" data-level="2">
+                                    <div class="level-number">L2</div>
+                                    <div class="level-status">75% Progress</div>
+                                </div>
+                                <div class="level-box locked" data-level="3">
+                                    <div class="level-number">L3</div>
+                                    <div class="level-status">🔒 Locked</div>
+                                </div>
+                                <div class="level-box locked" data-level="4">
+                                    <div class="level-number">L4</div>
+                                    <div class="level-status">🔒 Locked</div>
+                                </div>
+                            </div>
+                            <div class="current-rating">
+                                <div class="rating-badge level-2">Level 2</div>
+                            </div>
+                        </div>
+
+                        <!-- Motor Skill 2: Positioning -->
+                        <div class="skill-row clickable" onclick="showSkillCriteria('motorSkill2', 2)">
+                            <div class="skill-info">
+                                <div class="skill-icon">🏃‍♂️</div>
+                                <div class="skill-details">
+                                    <div class="skill-name">Motor Skill 2</div>
+                                    <div class="skill-description">Positioning and Spatial Awareness</div>
+                                </div>
+                            </div>
+                            <div class="level-progression-matrix">
+                                <div class="level-box completed" data-level="1">
+                                    <div class="level-number">L1</div>
+                                    <div class="level-status">✓ Mastered</div>
+                                </div>
+                                <div class="level-box current" data-level="2">
+                                    <div class="level-number">L2</div>
+                                    <div class="level-status">60% Progress</div>
+                                </div>
+                                <div class="level-box locked" data-level="3">
+                                    <div class="level-number">L3</div>
+                                    <div class="level-status">🔒 Locked</div>
+                                </div>
+                                <div class="level-box locked" data-level="4">
+                                    <div class="level-number">L4</div>
+                                    <div class="level-status">🔒 Locked</div>
+                                </div>
+                            </div>
+                            <div class="current-rating">
+                                <div class="rating-badge level-2">Level 2</div>
+                            </div>
+                        </div>
+
+                        <!-- Motor Skill 3: Shooting/Attacking -->
+                        <div class="skill-row clickable" onclick="showSkillCriteria('motorSkill3', 1)">
+                            <div class="skill-info">
+                                <div class="skill-icon">🏃‍♂️</div>
+                                <div class="skill-details">
+                                    <div class="skill-name">Motor Skill 3</div>
+                                    <div class="skill-description">Shooting/Attacking Technique</div>
+                                </div>
+                            </div>
+                            <div class="level-progression-matrix">
+                                <div class="level-box completed" data-level="1">
+                                    <div class="level-number">L1</div>
+                                    <div class="level-status">✓ Mastered</div>
+                                </div>
+                                <div class="level-box current" data-level="2">
+                                    <div class="level-number">L2</div>
+                                    <div class="level-status">45% Progress</div>
+                                </div>
+                                <div class="level-box locked" data-level="3">
+                                    <div class="level-number">L3</div>
+                                    <div class="level-status">🔒 Locked</div>
+                                </div>
+                                <div class="level-box locked" data-level="4">
+                                    <div class="level-number">L4</div>
+                                    <div class="level-status">🔒 Locked</div>
+                                </div>
+                            </div>
+                            <div class="current-rating">
+                                <div class="rating-badge level-1">Level 1</div>
+                            </div>
+                        </div>
+
+                        <!-- Methodological Skill: Warm-up Management -->
+                        <div class="skill-row clickable" onclick="showSkillCriteria('methodologicalSkill', 3)">
+                            <div class="skill-info">
+                                <div class="skill-icon">🧠</div>
+                                <div class="skill-details">
+                                    <div class="skill-name">Methodological Skill</div>
+                                    <div class="skill-description">Warm-up Management (WUP)</div>
+                                </div>
+                            </div>
+                            <div class="level-progression-matrix">
+                                <div class="level-box completed" data-level="1">
+                                    <div class="level-number">L1</div>
+                                    <div class="level-status">✓ Mastered</div>
+                                </div>
+                                <div class="level-box completed" data-level="2">
+                                    <div class="level-number">L2</div>
+                                    <div class="level-status">✓ Mastered</div>
+                                </div>
+                                <div class="level-box current" data-level="3">
+                                    <div class="level-number">L3</div>
+                                    <div class="level-status">30% Progress</div>
+                                </div>
+                                <div class="level-box locked" data-level="4">
+                                    <div class="level-number">L4</div>
+                                    <div class="level-status">🔒 Locked</div>
+                                </div>
+                            </div>
+                            <div class="current-rating">
+                                <div class="rating-badge level-3">Level 3</div>
+                            </div>
+                        </div>
+
+                        <!-- Social/Referee Skill -->
+                        <div class="skill-row clickable" onclick="showSkillCriteria('socialSkill', 4)">
+                            <div class="skill-info">
+                                <div class="skill-icon">🤝</div>
+                                <div class="skill-details">
+                                    <div class="skill-name">Social/Referee Skill</div>
+                                    <div class="skill-description">Refereeing and Fair Play</div>
+                                </div>
+                            </div>
+                            <div class="level-progression-matrix">
+                                <div class="level-box completed" data-level="1">
+                                    <div class="level-number">L1</div>
+                                    <div class="level-status">✓ Mastered</div>
+                                </div>
+                                <div class="level-box completed" data-level="2">
+                                    <div class="level-number">L2</div>
+                                    <div class="level-status">✓ Mastered</div>
+                                </div>
+                                <div class="level-box completed" data-level="3">
+                                    <div class="level-number">L3</div>
+                                    <div class="level-status">✓ Mastered</div>
+                                </div>
+                                <div class="level-box current" data-level="4">
+                                    <div class="level-number">L4</div>
+                                    <div class="level-status">85% Progress</div>
+                                </div>
+                            </div>
+                            <div class="current-rating">
+                                <div class="rating-badge level-4">Level 4</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Radar Chart Visualization -->
+                <div class="radar-chart-container">
+                    <div class="chart-title">🎯 Skills Radar Overview</div>
+                    <div class="radar-chart">
+                        <svg viewBox="0 0 400 400" class="radar-svg">
+                            <!-- Background grid -->
+                            <g class="radar-grid">
+                                <!-- Concentric circles for levels -->
+                                <circle cx="200" cy="200" r="50" fill="none" stroke="#e0e0e0" stroke-width="1"/>
+                                <circle cx="200" cy="200" r="100" fill="none" stroke="#e0e0e0" stroke-width="1"/>
+                                <circle cx="200" cy="200" r="150" fill="none" stroke="#e0e0e0" stroke-width="1"/>
+                                <circle cx="200" cy="200" r="200" fill="none" stroke="#e0e0e0" stroke-width="2"/>
+                                
+                                <!-- Axis lines -->
+                                <line x1="200" y1="0" x2="200" y2="400" stroke="#e0e0e0" stroke-width="1"/>
+                                <line x1="0" y1="200" x2="400" y2="200" stroke="#e0e0e0" stroke-width="1"/>
+                                <line x1="58.6" y1="58.6" x2="341.4" y2="341.4" stroke="#e0e0e0" stroke-width="1"/>
+                                <line x1="341.4" y1="58.6" x2="58.6" y2="341.4" stroke="#e0e0e0" stroke-width="1"/>
+                                
+                                <!-- Level labels -->
+                                <text x="205" y="55" font-size="12" fill="#666">L4</text>
+                                <text x="205" y="105" font-size="12" fill="#666">L3</text>
+                                <text x="205" y="155" font-size="12" fill="#666">L2</text>
+                                <text x="205" y="205" font-size="12" fill="#666">L1</text>
+                            </g>
+                            
+                            <!-- Skill data points -->
+                            <g class="radar-data">
+                                <!-- Current skill levels polygon -->
+                                <polygon points="200,100 280,140 240,280 120,280 120,150" 
+                                         fill="rgba(102, 126, 234, 0.3)" 
+                                         stroke="#667eea" 
+                                         stroke-width="3"/>
+                                
+                                <!-- Data points -->
+                                <circle cx="200" cy="100" r="6" fill="#667eea"/> <!-- MS1: Level 2 -->
+                                <circle cx="280" cy="140" r="6" fill="#667eea"/> <!-- MS2: Level 2 -->
+                                <circle cx="240" cy="280" r="6" fill="#667eea"/> <!-- MS3: Level 1 -->
+                                <circle cx="120" cy="280" r="6" fill="#667eea"/> <!-- MTS: Level 3 -->
+                                <circle cx="120" cy="150" r="6" fill="#667eea"/> <!-- SS: Level 4 -->
+                            </g>
+                            
+                            <!-- Skill labels -->
+                            <g class="radar-labels">
+                                <text x="200" y="15" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">
+                                    Dribbling & Passing
+                                </text>
+                                <text x="350" y="120" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">
+                                    Positioning
+                                </text>
+                                <text x="280" y="380" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">
+                                    Shooting/Attack
+                                </text>
+                                <text x="50" y="380" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">
+                                    Warm-up Mgmt
+                                </text>
+                                <text x="50" y="120" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">
+                                    Referee/Fair Play
+                                </text>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Overall Progress Summary -->
+                <div class="progress-summary">
+                    <div class="summary-card">
+                        <div class="summary-icon">🏆</div>
+                        <div class="summary-content">
+                            <div class="summary-title">Overall Mastery Level</div>
+                            <div class="summary-value">Level 2.4</div>
+                            <div class="summary-description">Above average across all skills</div>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-card">
+                        <div class="summary-icon">📈</div>
+                        <div class="summary-content">
+                            <div class="summary-title">Skills Mastered</div>
+                            <div class="summary-value">7 / 20</div>
+                            <div class="summary-description">35% of all skill levels completed</div>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-card">
+                        <div class="summary-icon">🎯</div>
+                        <div class="summary-content">
+                            <div class="summary-title">Next Milestone</div>
+                            <div class="summary-value">MS3 Level 2</div>
+                            <div class="summary-description">Focus on shooting technique</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Individual Lesson Screen -->
+        <div id="lesson-screen" class="screen">
+            <div class="header">
+                <div class="logo" id="lesson-title">📋 Lesson 1: Basic Rules</div>
+                <button class="nav-btn back" onclick="returnToSportLessons()">← Back to Lessons</button>
+            </div>
+
+            <div class="lesson-container">
+                <div class="lesson-content">
+                    <div class="lesson-header">
+                        <h2 id="lesson-main-title">Lesson 1: Basic Rules</h2>
+                        <div class="lesson-purpose">
+                            <strong>Purpose:</strong> <span id="lesson-purpose-text">Understand and apply the fundamental rules of the sport</span>
+                        </div>
+                    </div>
+
+                    <div class="core-content">
+                        <div class="exercise-section">
+                            <h3>🎯 Main Exercise</h3>
+                            <p id="main-exercise-text">Practice game scenarios with rule application and referee decision-making</p>
+                        </div>
+                        
+                        <div class="exercise-purpose">
+                            <h3>💡 Exercise Purpose</h3>
+                            <p id="exercise-purpose-text">To internalize rules through practical application and develop understanding of fair play principles</p>
+                        </div>
+                    </div>
+
+                    <div class="assessment-section">
+                        <h3>📊 Self-Assessment & Progress Tracking</h3>
+                        <p class="assessment-intro">Check off the criteria you achieved during this lesson. Your progress updates in real-time!</p>
+                        
+                        <div class="assessment-categories">
+                            <!-- Motor Skills (50%) -->
+                            <div class="assessment-category">
+                                <div class="category-header">
+                                    <h4>🏃‍♂️ A. Motor Skills (50%)</h4>
+                                    <div class="category-progress">
+                                        <div class="progress-bar">
+                                            <div class="progress-fill motor-progress" style="width: 0%"></div>
+                                        </div>
+                                        <span class="progress-text motor-text">0%</span>
+                                    </div>
+                                </div>
+                                <div class="criteria-list" id="motor-criteria">
+                                    <!-- Motor skills criteria will be populated -->
+                                </div>
+                            </div>
+
+                            <!-- Methodological Skills (25%) -->
+                            <div class="assessment-category">
+                                <div class="category-header">
+                                    <h4>🧠 B. Methodological Skills (25%)</h4>
+                                    <div class="category-progress">
+                                        <div class="progress-bar">
+                                            <div class="progress-fill methodological-progress" style="width: 0%"></div>
+                                        </div>
+                                        <span class="progress-text methodological-text">0%</span>
+                                    </div>
+                                </div>
+                                <div class="criteria-list" id="methodological-criteria">
+                                    <!-- Methodological criteria will be populated -->
+                                </div>
+                            </div>
+
+                            <!-- Social/Implication Skills (25%) -->
+                            <div class="assessment-category">
+                                <div class="category-header">
+                                    <h4>🤝 C. Social/Implication Skills (25%)</h4>
+                                    <div class="category-progress">
+                                        <div class="progress-bar">
+                                            <div class="progress-fill social-progress" style="width: 0%"></div>
+                                        </div>
+                                        <span class="progress-text social-text">0%</span>
+                                    </div>
+                                </div>
+                                <div class="criteria-list" id="social-criteria">
+                                    <!-- Social criteria will be populated -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="overall-progress">
+                            <h4>🎯 Overall Lesson Progress</h4>
+                            <div class="progress-bar large">
+                                <div class="progress-fill overall-progress-fill" style="width: 0%"></div>
+                            </div>
+                            <div class="progress-text overall-progress-text">0% Complete</div>
+                        </div>
+
+                        <div class="lesson-actions">
+                            <button class="nav-btn" onclick="saveProgress()" id="save-progress-btn">💾 Save Progress</button>
+                            <button class="nav-btn" onclick="resetAssessment()" style="background: #dc3545;">🔄 Reset Assessment</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Levels Screen -->
+        <div id="quiz-levels-screen" class="screen">
+            <div class="header">
+                <div class="logo">🧠 Quiz Levels</div>
+                <button class="nav-btn back" onclick="showScreen('dashboard-screen')">← Back</button>
+            </div>
+
+            <div class="quiz-levels" id="quiz-levels-container">
+                <!-- Quiz levels will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Quiz Topics Screen -->
+        <div id="quiz-topics-screen" class="screen">
+            <div class="header">
+                <div class="logo" id="quiz-level-title">🧠 Level 1 Quizzes</div>
+                <button class="nav-btn back" onclick="showScreen('quiz-levels-screen')">← Back</button>
+            </div>
+
+            <div class="quiz-topics-grid" id="quiz-topics-grid">
+                <!-- Quiz topics will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="screen">
+            <div class="quiz-container">
+                <div class="quiz-intro" id="quiz-intro">
+                    <div class="quote-section">
+                        <div class="quote-text" id="quote-text">"Quote will appear here"</div>
+                        <div class="quote-author" id="quote-author">- Author</div>
+                    </div>
+                    <div class="society-text" id="society-text">Educational content will appear here...</div>
+                    <div class="content-toggle">
+                        <button class="toggle-btn" onclick="startQuizQuestions()" id="start-quiz-btn">Start Quiz Questions</button>
+                        <button class="toggle-btn" onclick="returnToQuestions()" id="return-quiz-btn" style="display: none; background: #667eea;">← Back to Questions</button>
+                    </div>
+                </div>
+
+                <div class="quiz-header" id="quiz-header" style="display: none;">
+                    <h2 id="quiz-title">Quiz Title</h2>
+                    <div class="quiz-progress">
+                        <span class="question-counter" id="question-counter">Question 1 of 10</span>
+                        <div class="progress-bar" style="width: 200px;">
+                            <div class="progress-fill" id="quiz-progress-fill" style="width: 10%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="quiz-questions" style="display: none;">
+                    <div class="question-text" id="question-text">Question will appear here</div>
+
+                    <div class="answers-grid" id="answers-grid">
+                        <!-- Answer buttons will be populated by JavaScript -->
+                    </div>
+
+                    <div class="explanation" id="explanation">
+                        <strong>Explanation:</strong>
+                        <p id="explanation-text">Explanation will appear here</p>
+                    </div>
+
+                    <div class="quiz-controls">
+                        <button class="nav-btn back" onclick="showQuizTopics(currentLevel)">← Exit Quiz</button>
+                        <button class="nav-btn" onclick="showQuizIntro()" style="background: #28a745;">📖 Review Text</button>
+                        <button class="nav-btn" id="next-btn" onclick="nextQuestion()" disabled>Next Question</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Results Screen -->
+        <div id="quiz-results-screen" class="screen">
+            <div class="results-container">
+                <h2>Quiz Complete!</h2>
+                <div class="results-score" id="final-score">85%</div>
+                <div class="results-feedback" id="results-feedback">Great job! You're mastering the fundamentals.</div>
+                
+                <div class="results-breakdown">
+                    <div class="breakdown-item">
+                        <div class="breakdown-number" id="correct-answers">8</div>
+                        <div class="breakdown-label">Correct Answers</div>
+                    </div>
+                    <div class="breakdown-item">
+                        <div class="breakdown-number" id="incorrect-answers">2</div>
+                        <div class="breakdown-label">Incorrect Answers</div>
+                    </div>
+                </div>
+
+                <div id="strengths-weaknesses">
+                    <h3>📈 Strengths & Areas for Improvement</h3>
+                    <p id="performance-analysis">You showed strong understanding of health concepts but could review nutrition basics.</p>
+                </div>
+
+                <div style="margin-top: 30px;">
+                    <button class="nav-btn" onclick="showQuizTopics(currentLevel)">Continue Learning</button>
+                    <button class="nav-btn back" onclick="showScreen('dashboard-screen')" style="margin-left: 15px;">Dashboard</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Skill Criteria Modal -->
+        <div id="skill-criteria-modal" class="skill-criteria-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title" id="modal-skill-title">
+                        <span id="modal-skill-icon">🎯</span>
+                        <span id="modal-skill-name">Skill Name</span>
+                    </div>
+                    <button class="modal-close" onclick="closeSkillModal()">×</button>
+                </div>
+                
+                <div class="skill-description" id="modal-skill-description">
+                    Skill description will appear here
+                </div>
+                
+                <div class="level-criteria-grid" id="level-criteria-grid">
+                    <!-- Level criteria will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // App State
+        let currentUser = null;
+        let currentLevel = 1;
+        let currentQuiz = null;
+        let currentQuestion = 0;
+        let quizAnswers = [];
+        let currentSport = null;
+        let currentLesson = null;
+        let userProgress = {
+            level1: { completed: [0, 1, 2], scores: [90, 85, 80] },
+            level2: { completed: [], scores: [] },
+            level3: { completed: [], scores: [] },
+            level4: { completed: [], scores: [] },
+            level5: { completed: [], scores: [] },
+            level6: { completed: [], scores: [] }
+        };
+
+        // Sport Progress Storage
+        let sportProgress = {};
+
+        // Skill Progression Matrix (Levels 1 to 4)
+        const skillProgressionCriteria = {
+            motorSkill1: {
+                name: "MS1: Dribble/Pass Awareness",
+                icon: "⚽",
+                description: "Dribbling and Passing Awareness",
+                levels: {
+                    1: "Dribbles/passes mostly when told; often late.",
+                    2: "Can execute skill but sometimes misses opportunities.", 
+                    3: "Consistently passes/dribbles effectively based on defensive pressure.",
+                    4: "Always makes the optimal, timely choice; creates scoring opportunities."
+                }
+            },
+            motorSkill2: {
+                name: "MS2: Positioning",
+                icon: "📍", 
+                description: "Positioning and Spatial Awareness",
+                levels: {
+                    1: "Stands still or crowds the ball; requires frequent reminders.",
+                    2: "Recognizes basic open space but is slow to move into it.",
+                    3: "Maintains position well relative to the ball and opponents; provides clear passing angles.", 
+                    4: "Fluidly adjusts position before the play develops, controlling a large zone defensively/offensively."
+                }
+            },
+            motorSkill3: {
+                name: "MS3: Shooting/Attacking",
+                icon: "🎯",
+                description: "Shooting/Attacking Technique", 
+                levels: {
+                    1: "Shoots without aiming; technique is often inconsistent.",
+                    2: "Uses correct basic technique but misses target or is easily blocked.",
+                    3: "Executes technique accurately and powerfully; makes smart choices about shot selection.",
+                    4: "Highly consistent accuracy and power; can adapt technique instantly based on angle and defender."
+                }
+            },
+            methodologicalSkill: {
+                name: "Methodological Skill: WUP",
+                icon: "🧠",
+                description: "Warm-up Management (WUP)",
+                levels: {
+                    1: "Follows warm-up instructions passively; needs constant direction.",
+                    2: "Can lead a simple activity with clear instructions but lacks energy control.", 
+                    3: "Independently plans and leads an effective, safe warm-up; manages group energy and time well.",
+                    4: "Can design and lead varied, dynamic warm-ups for specific goals; coaches peers effectively during the WUP."
+                }
+            },
+            socialSkill: {
+                name: "Social/Referee Skill", 
+                icon: "🤝",
+                description: "Refereeing and Fair Play",
+                levels: {
+                    1: "Complains about calls; needs intervention to resolve minor disputes.",
+                    2: "Understands basic rules; occasionally makes fair calls when acting as a referee.",
+                    3: "Consistently applies rules fairly; uses clear, respectful communication to resolve conflict (self-management).", 
+                    4: "Expertly manages a game, maintains authority, and actively promotes fair play and inclusion among peers."
+                }
+            }
+        };
+
+        // Sports Data
+        const sportsData = [
+            { name: 'Soccer', icon: '⚽' }, { name: 'Basketball', icon: '🏀' },
+            { name: 'Tennis', icon: '🎾' }, { name: 'Swimming', icon: '🏊‍♂️' },
+            { name: 'Running', icon: '🏃‍♂️' }, { name: 'Volleyball', icon: '🏐' },
+            { name: 'Baseball', icon: '⚾' }, { name: 'Golf', icon: '⛳' },
+            { name: 'Cycling', icon: '🚴‍♂️' }, { name: 'Gymnastics', icon: '🤸‍♀️' },
+            { name: 'Boxing', icon: '🥊' }, { name: 'Wrestling', icon: '🤼‍♂️' },
+            { name: 'Badminton', icon: '🏸' }, { name: 'Hockey', icon: '🏒' },
+            { name: 'Rugby', icon: '🏉' }, { name: 'Cricket', icon: '🏏' },
+            { name: 'Skiing', icon: '⛷️' }, { name: 'Surfing', icon: '🏄‍♂️' },
+            { name: 'Rock Climbing', icon: '🧗‍♂️' }, { name: 'Martial Arts', icon: '🥋' }
+        ];
+
+        // Sport Lessons Data with Pedagogical Flow (10 Lessons)
+        const sportLessons = [
+            { 
+                name: "Lesson 1", 
+                topic: "Diagnostic Assessment",
+                icon: "🔍", 
+                type: "baseline",
+                focus: "Initial skill assessment and baseline establishment",
+                progress: 0
+            },
+            { 
+                name: "Lesson 2", 
+                topic: "Motor Skill 1: Dribble & Pass",
+                icon: "🏃‍♂️", 
+                type: "formative",
+                focus: "Dribbling and Passing Awareness",
+                progress: 0
+            },
+            { 
+                name: "Lesson 3", 
+                topic: "Motor Skill 2: Positioning",
+                icon: "🏃‍♂️", 
+                type: "formative",
+                focus: "Spatial awareness and field positioning",
+                progress: 0
+            },
+            { 
+                name: "Lesson 4", 
+                topic: "Motor Skill 3: Shooting/Attack",
+                icon: "🏃‍♂️", 
+                type: "formative",
+                focus: "Shooting and attacking skills under pressure",
+                progress: 0
+            },
+            { 
+                name: "Lesson 5", 
+                topic: "Formative Assessment",
+                icon: "📈", 
+                type: "comparison",
+                focus: "Progress comparison and growth identification",
+                progress: 0
+            },
+            { 
+                name: "Lesson 6", 
+                topic: "Advanced MS1: Complex Scenarios",
+                icon: "🏃‍♂️", 
+                type: "formative",
+                focus: "Complex application of dribbling and passing",
+                progress: 0
+            },
+            { 
+                name: "Lesson 7", 
+                topic: "Advanced MS2: Dynamic Positioning",
+                icon: "🏃‍♂️", 
+                type: "formative",
+                focus: "Dynamic positioning under game pressure",
+                progress: 0
+            },
+            { 
+                name: "Lesson 8", 
+                topic: "Advanced MS3: Pressure Shooting",
+                icon: "🏃‍♂️", 
+                type: "formative",
+                focus: "Advanced attacking techniques in competition",
+                progress: 0
+            },
+            { 
+                name: "Lesson 9", 
+                topic: "Summative Assessment 1",
+                icon: `<svg width="48" height="48" viewBox="0 0 48 48" style="display: block; margin: 0 auto;">
+                    <rect x="4" y="6" width="40" height="36" rx="2" fill="white" stroke="#333" stroke-width="2"/>
+                    <line x1="8" y1="12" x2="40" y2="12" stroke="#ddd" stroke-width="1"/>
+                    <line x1="8" y1="16" x2="40" y2="16" stroke="#ddd" stroke-width="1"/>
+                    <line x1="8" y1="20" x2="40" y2="20" stroke="#ddd" stroke-width="1"/>
+                    <line x1="8" y1="24" x2="40" y2="24" stroke="#ddd" stroke-width="1"/>
+                    <line x1="8" y1="28" x2="40" y2="28" stroke="#ddd" stroke-width="1"/>
+                    <line x1="8" y1="32" x2="40" y2="32" stroke="#ddd" stroke-width="1"/>
+                    <line x1="8" y1="36" x2="40" y2="36" stroke="#ddd" stroke-width="1"/>
+                    <circle cx="12" cy="14" r="2" fill="#4CAF50"/>
+                    <path d="M10.5 14 L11.5 15 L13.5 13" stroke="white" stroke-width="1.5" fill="none"/>
+                    <circle cx="12" cy="18" r="2" fill="#4CAF50"/>
+                    <path d="M10.5 18 L11.5 19 L13.5 17" stroke="white" stroke-width="1.5" fill="none"/>
+                    <circle cx="12" cy="22" r="2" fill="#f44336"/>
+                    <path d="M10.5 20.5 L13.5 23.5 M13.5 20.5 L10.5 23.5" stroke="white" stroke-width="1.5"/>
+                    <circle cx="12" cy="26" r="2" fill="#4CAF50"/>
+                    <path d="M10.5 26 L11.5 27 L13.5 25" stroke="white" stroke-width="1.5" fill="none"/>
+                    <circle cx="12" cy="30" r="2" fill="#f44336"/>
+                    <path d="M10.5 28.5 L13.5 31.5 M13.5 28.5 L10.5 31.5" stroke="white" stroke-width="1.5"/>
+                    <circle cx="12" cy="34" r="2" fill="#4CAF50"/>
+                    <path d="M10.5 34 L11.5 35 L13.5 33" stroke="white" stroke-width="1.5" fill="none"/>
+                </svg>`, 
+                type: "summative",
+                focus: "Overall game performance evaluation",
+                progress: 0
+            },
+            { 
+                name: "Lesson 10", 
+                topic: "Summative Assessment 2",
+                icon: `<svg width="48" height="48" viewBox="0 0 48 48" style="display: block; margin: 0 auto;">
+                    <rect x="4" y="6" width="40" height="36" rx="2" fill="white" stroke="#333" stroke-width="2"/>
+                    <line x1="8" y1="12" x2="40" y2="12" stroke="#ddd" stroke-width="1"/>
+                    <line x1="8" y1="16" x2="40" y2="16" stroke="#ddd" stroke-width="1"/>
+                    <line x1="8" y1="20" x2="40" y2="20" stroke="#ddd" stroke-width="1"/>
+                    <line x1="8" y1="24" x2="40" y2="24" stroke="#ddd" stroke-width="1"/>
+                    <line x1="8" y1="28" x2="40" y2="28" stroke="#ddd" stroke-width="1"/>
+                    <line x1="8" y1="32" x2="40" y2="32" stroke="#ddd" stroke-width="1"/>
+                    <line x1="8" y1="36" x2="40" y2="36" stroke="#ddd" stroke-width="1"/>
+                    <circle cx="12" cy="14" r="2" fill="#4CAF50"/>
+                    <path d="M10.5 14 L11.5 15 L13.5 13" stroke="white" stroke-width="1.5" fill="none"/>
+                    <circle cx="12" cy="18" r="2" fill="#f44336"/>
+                    <path d="M10.5 16.5 L13.5 19.5 M13.5 16.5 L10.5 19.5" stroke="white" stroke-width="1.5"/>
+                    <circle cx="12" cy="22" r="2" fill="#4CAF50"/>
+                    <path d="M10.5 22 L11.5 23 L13.5 21" stroke="white" stroke-width="1.5" fill="none"/>
+                    <circle cx="12" cy="26" r="2" fill="#4CAF50"/>
+                    <path d="M10.5 26 L11.5 27 L13.5 25" stroke="white" stroke-width="1.5" fill="none"/>
+                    <circle cx="12" cy="30" r="2" fill="#4CAF50"/>
+                    <path d="M10.5 30 L11.5 31 L13.5 29" stroke="white" stroke-width="1.5" fill="none"/>
+                    <circle cx="12" cy="34" r="2" fill="#f44336"/>
+                    <path d="M10.5 32.5 L13.5 35.5 M13.5 32.5 L10.5 35.5" stroke="white" stroke-width="1.5"/>
+                </svg>`, 
+                type: "summative",
+                focus: "Specific tactical situation mastery",
+                progress: 0
+            }
+        ];
+
+        // Lesson Content Structure (Updated for Pedagogical Flow)
+        const lessonContent = {
+            0: { // Diagnostic Assessment
+                title: "Lesson 1: Diagnostic Assessment",
+                purpose: "Comprehensive initial evaluation of core motor skills to establish baseline performance",
+                mainExercise: "Complete skill stations testing dribbling, positioning, and shooting abilities in controlled scenarios",
+                exercisePurpose: "To establish individual baseline performance levels and identify areas for focused development",
+                assessmentCriteria: {
+                    motorSkills: [
+                        "Demonstrated basic dribbling control for 15 seconds without losing possession",
+                        "Showed awareness of positioning relative to teammates and opponents"
+                    ],
+                    methodological: [
+                        "Successfully organized personal equipment and followed station rotation protocol"
+                    ],
+                    social: [
+                        "Demonstrated maximum effort and encouraged teammates throughout assessment"
+                    ]
+                }
+            },
+            1: { // Motor Skill 1: Dribble & Pass
+                title: "Lesson 2: Motor Skill 1 - Dribble & Pass",
+                purpose: "Master dribbling awareness and passing decisions: Dribble when necessary, Pass before danger",
+                mainExercise: "Progressive dribbling scenarios with decision-making pressure and passing opportunities",
+                exercisePurpose: "To develop tactical awareness of when to maintain possession vs. when to distribute the ball",
+                assessmentCriteria: {
+                    motorSkills: [
+                        "Maintained ball control while dribbling under pressure for 20 seconds",
+                        "Made accurate passes to teammates before losing possession to opponents"
+                    ],
+                    methodological: [
+                        "Organized dribbling practice stations and explained decision-making principles to peers"
+                    ],
+                    social: [
+                        "Demonstrated maximum engagement and provided constructive feedback to teammates"
+                    ]
+                }
+            },
+            2: { // Motor Skill 2: Positioning
+                title: "Lesson 3: Motor Skill 2 - Positioning & Spatial Awareness",
+                purpose: "Develop positioning intelligence and spatial awareness in dynamic game situations",
+                mainExercise: "Small-sided games focusing on optimal positioning relative to ball, teammates, and opponents",
+                exercisePurpose: "To build instinctive understanding of space and positioning for tactical advantage",
+                assessmentCriteria: {
+                    motorSkills: [
+                        "Consistently positioned themselves advantageously relative to play development",
+                        "Demonstrated awareness of space and moved to create or deny opportunities"
+                    ],
+                    methodological: [
+                        "Led positioning drills and explained spatial concepts to teammates"
+                    ],
+                    social: [
+                        "Showed maximum engagement and helped teammates understand positioning principles"
+                    ]
+                }
+            },
+            3: { // Motor Skill 3: Shooting/Attack
+                title: "Lesson 4: Motor Skill 3 - Shooting/Attacking Technique",
+                purpose: "Master sport-specific attacking techniques and shooting accuracy under pressure",
+                mainExercise: "Progressive shooting drills from static to dynamic situations with defensive pressure",
+                exercisePurpose: "To develop confidence and accuracy in attacking situations with increasing complexity",
+                assessmentCriteria: {
+                    motorSkills: [
+                        "Executed shooting technique with proper form and accuracy in 7/10 attempts",
+                        "Maintained composure and technique when shooting under defensive pressure"
+                    ],
+                    methodological: [
+                        "Set up shooting practice stations and coached teammates on technique"
+                    ],
+                    social: [
+                        "Demonstrated maximum effort and encouraged teammates during challenging drills"
+                    ]
+                }
+            },
+            4: { // Formative Assessment
+                title: "Lesson 5: Formative Assessment - Progress Comparison",
+                purpose: "Compare current performance against Lesson 1 baseline to identify growth and areas for improvement",
+                mainExercise: "Repeat diagnostic assessment stations with performance comparison and goal setting",
+                exercisePurpose: "To measure progress, celebrate improvements, and establish targets for continued development",
+                assessmentCriteria: {
+                    motorSkills: [
+                        "Showed measurable improvement in at least 2 of 3 core motor skills from baseline",
+                        "Demonstrated increased confidence and fluidity in skill execution"
+                    ],
+                    methodological: [
+                        "Accurately self-assessed progress and set realistic goals for continued improvement"
+                    ],
+                    social: [
+                        "Celebrated teammates' progress and provided encouragement for areas needing development"
+                    ]
+                }
+            },
+            5: { // Advanced MS1
+                title: "Lesson 6: Advanced MS1 - Complex Dribbling/Passing Scenarios",
+                purpose: "Apply dribbling and passing skills in complex, multi-opponent situations",
+                mainExercise: "Advanced scenarios with multiple defenders, limited space, and time pressure",
+                exercisePurpose: "To develop advanced decision-making and technical execution under maximum pressure",
+                assessmentCriteria: {
+                    motorSkills: [
+                        "Successfully navigated complex scenarios maintaining possession for 15+ seconds",
+                        "Made optimal pass/dribble decisions under intense pressure from multiple opponents"
+                    ],
+                    methodological: [
+                        "Designed and led complex scenario drills for teammates"
+                    ],
+                    social: [
+                        "Maintained composure under pressure and supported teammates in challenging situations"
+                    ]
+                }
+            },
+            6: { // Advanced MS2
+                title: "Lesson 7: Advanced MS2 - Dynamic Positioning in Game Situations",
+                purpose: "Master positioning in fast-paced, dynamic game-like situations with constant movement",
+                mainExercise: "Full-speed game situations with focus on positioning during transitions and set plays",
+                exercisePurpose: "To develop instinctive positioning that adapts to rapidly changing game dynamics",
+                assessmentCriteria: {
+                    motorSkills: [
+                        "Maintained optimal positioning throughout dynamic game situations",
+                        "Anticipated play development and positioned proactively rather than reactively"
+                    ],
+                    methodological: [
+                        "Analyzed game situations and explained positioning strategies to teammates"
+                    ],
+                    social: [
+                        "Communicated positioning information to teammates and demonstrated leadership"
+                    ]
+                }
+            },
+            7: { // Advanced MS3
+                title: "Lesson 8: Advanced MS3 - Pressure Shooting/Attacking",
+                purpose: "Execute advanced attacking techniques under maximum competitive pressure",
+                mainExercise: "High-pressure attacking scenarios with full defensive pressure and time constraints",
+                exercisePurpose: "To develop mental toughness and technical consistency in high-stakes attacking situations",
+                assessmentCriteria: {
+                    motorSkills: [
+                        "Maintained shooting accuracy and technique under maximum defensive pressure",
+                        "Created and converted attacking opportunities in congested, high-pressure situations"
+                    ],
+                    methodological: [
+                        "Organized high-pressure attacking drills and coached teammates on mental preparation"
+                    ],
+                    social: [
+                        "Demonstrated resilience after missed opportunities and encouraged teammates under pressure"
+                    ]
+                }
+            },
+            8: { // Summative Assessment 1
+                title: "Lesson 9: Summative Assessment 1 - Match Performance",
+                purpose: "Demonstrate overall game performance integrating all motor skills in competitive match play",
+                mainExercise: "Full match play with comprehensive performance evaluation across all skill areas",
+                exercisePurpose: "To assess holistic game performance and integration of all learned skills in authentic competition",
+                assessmentCriteria: {
+                    motorSkills: [
+                        "Integrated all three motor skills effectively throughout match play",
+                        "Maintained consistent performance level across all phases of the game"
+                    ],
+                    methodological: [
+                        "Demonstrated tactical awareness and made strategic decisions during match play"
+                    ],
+                    social: [
+                        "Exhibited exemplary sportsmanship and leadership throughout competitive match"
+                    ]
+                }
+            },
+            9: { // Summative Assessment 2
+                title: "Lesson 10: Summative Assessment 2 - Tactical Situations",
+                purpose: "Master specific tactical situations requiring integration of all skills under pressure",
+                mainExercise: "Specialized tactical scenarios testing decision-making and skill execution in critical moments",
+                exercisePurpose: "To evaluate tactical understanding and ability to execute under pressure in game-deciding situations",
+                assessmentCriteria: {
+                    motorSkills: [
+                        "Successfully executed skills in critical tactical situations with high success rate",
+                        "Demonstrated advanced tactical awareness and made optimal decisions under pressure"
+                    ],
+                    methodological: [
+                        "Analyzed tactical situations and provided strategic guidance to teammates"
+                    ],
+                    social: [
+                        "Maintained composure in high-pressure situations and demonstrated exceptional leadership"
+                    ]
+                }
+            }
+        };
+
+        // Quiz Topics Data
+        const quizTopics = [
+            { name: "Foundations of Health", icon: "🏥", description: "Basic health principles" },
+            { name: "Strong Body, Strong Mind", icon: "💪", description: "Physical and mental fitness" },
+            { name: "Fuel & Nutrition", icon: "🥗", description: "Nutrition for athletes" },
+            { name: "Teamwork Counts", icon: "🤝", description: "Teamwork and cooperation" },
+            { name: "Values in Sport", icon: "⚖️", description: "Ethics and sportsmanship" },
+            { name: "Olympic Journey", icon: "🏅", description: "Olympic history and values" },
+            { name: "Know Your Body", icon: "🫀", description: "Human anatomy basics" },
+            { name: "Safe Moves", icon: "🦺", description: "Safety in physical education" },
+            { name: "Fair Play First", icon: "🤝", description: "Fair play and ethics" },
+            { name: "PE in Society", icon: "🌍", description: "Role of PE in society" }
+        ];
+
+        // Level Definitions (6 Combined Levels)
+        const yearLevels = [
+            { id: 'level1', name: 'Level 1: Foundation', ages: '5-8 years', icon: '🌱', description: 'Years 1-3: Basic Health & Movement' },
+            { id: 'level2', name: 'Level 2: Development', ages: '8-11 years', icon: '🌳', description: 'Years 4-6: Building Skills & Knowledge' },
+            { id: 'level3', name: 'Level 3: Growth', ages: '11-14 years', icon: '🏃‍♂️', description: 'Years 7-9: Physical & Mental Development' },
+            { id: 'level4', name: 'Level 4: Mastery', ages: '14-17 years', icon: '🎯', description: 'Years 10-12: Advanced Understanding' },
+            { id: 'level5', name: 'Level 5: University', ages: '18+ years', icon: '🔬', description: 'Higher Education: Scientific Approach' },
+            { id: 'level6', name: 'Level 6: Researcher', ages: 'Advanced', icon: '📚', description: 'Research Level: Expert Knowledge' }
+        ];
+
+        // Quiz Content with Quotes and Educational Text
+        const quizContent = {
+            0: { // Health is Wealth - Level 1 Quiz 1 (Ages 5-8)
+                quote: "Health is the greatest gift.",
+                author: "Buddha",
+                societyText: "Health gives us the strength to enjoy life. Running and playing in PE feels good when you're healthy. Exercise keeps you sharp and ready to learn, and warm-ups before class help your brain focus. Our body is our forever home—looking after it is vital. Stretching and eating well keep your body ready. Being healthy makes it easier to smile and have fun, and running without feeling tired is part of happiness. Feeling happy shows your body and mind are in balance, and games in PE make us laugh and keep us fit. Eating well and drinking water help your body shine, and bringing a water bottle to PE boosts performance. Caring for yourself is a responsibility, and choosing to move instead of sitting helps health. Every healthy choice adds to your future, and practicing skills today prepares you for sports tomorrow. Health is more valuable than money or gold - with health, you can play, learn, and grow. Looking after yourself makes life easier, and exercising daily keeps you strong and safe.",
+                questions: [
+                {
+                    question: "What is the greatest gift?",
+                    answers: ["Health", "Toys", "Money", "Clothes"],
+                    correct: 0,
+                    explanation: "Correct! Health lets you enjoy everything else."
+                },
+                {
+                    question: "What makes your mind strong?",
+                    answers: ["A fit body", "Watching TV", "Candy", "Sleeping late"],
+                    correct: 0,
+                    explanation: "Correct! Movement powers the mind."
+                },
+                {
+                    question: "Why care for your body?",
+                    answers: ["It's your only home", "To impress others", "For one day", "Because teachers say so"],
+                    correct: 0,
+                    explanation: "Correct! You live in your body for life."
+                },
+                {
+                    question: "What is the base of happiness?",
+                    answers: ["Health", "Money", "Luck", "Toys"],
+                    correct: 0,
+                    explanation: "Correct! Health supports joy."
+                },
+                {
+                    question: "What shows health?",
+                    answers: ["Happiness", "Anger", "Stress", "Sadness"],
+                    correct: 0,
+                    explanation: "Correct! Joy is a sign of well-being."
+                },
+                {
+                    question: "Where does health begin?",
+                    answers: ["Inside", "Clothes", "Shoes", "Hair"],
+                    correct: 0,
+                    explanation: "Correct! Health grows from within."
+                },
+                {
+                    question: "What is our duty?",
+                    answers: ["Keeping the body healthy", "Playing video games", "Eating sweets", "Ignoring exercise"],
+                    correct: 0,
+                    explanation: "Correct! Health is your responsibility."
+                },
+                {
+                    question: "What is health like?",
+                    answers: ["An investment", "A waste", "A punishment", "A mistake"],
+                    correct: 0,
+                    explanation: "Correct! Health pays off later."
+                },
+                {
+                    question: "What is true wealth?",
+                    answers: ["Good health", "Gold", "Cars", "Clothes"],
+                    correct: 0,
+                    explanation: "Correct! Health is life's treasure."
+                },
+                {
+                    question: "What happens if you care for your body?",
+                    answers: ["It cares for you", "It disappears", "Nothing", "It gets weaker"],
+                    correct: 0,
+                    explanation: "Correct! A cared-for body supports you back."
+                }
+                ]
+            },
+            1: { // Physical Fitness & Mental Strength - Level 2 Quiz 1 (Ages 8-11)
+                quote: "A sound mind in a sound body is a short but full description of a happy state in this world.",
+                author: "John Locke",
+                societyText: "Physical fitness and mental strength work together like partners in a dance. When your body is strong, your mind becomes clearer and more focused. Regular exercise doesn't just build muscles—it builds confidence, determination, and problem-solving skills. Students who participate in PE classes often perform better in math and reading because physical activity increases blood flow to the brain. The cardiovascular system (heart and blood vessels) delivers oxygen to every cell, including brain cells that help you think and learn. Endurance activities like running or cycling teach persistence and goal-setting. Team sports develop communication skills and strategic thinking. Individual activities like gymnastics or swimming build self-discipline and personal responsibility. Physical challenges in PE mirror life challenges—both require preparation, effort, and resilience. When you push through fatigue during a fitness test, you're training your mind to persevere through difficult academic tasks too. The habits you build in PE class—showing up, trying your best, supporting teammates—transfer to success in school, friendships, and future careers. Your body and mind are not separate systems but interconnected parts of who you are as a complete person.",
+                questions: [
+                {
+                    question: "According to John Locke, what creates a happy state?",
+                    answers: ["A sound mind in a sound body", "Only physical strength", "Only mental ability", "Avoiding all challenges"],
+                    correct: 0,
+                    explanation: "Correct! Physical and mental health work together to create overall wellbeing and happiness."
+                },
+                {
+                    question: "How does regular exercise affect academic performance?",
+                    answers: ["Improves focus and brain function", "Makes you too tired to study", "Only builds muscles", "Has no effect on learning"],
+                    correct: 0,
+                    explanation: "Correct! Exercise increases blood flow to the brain, improving concentration and learning ability."
+                },
+                {
+                    question: "What does the cardiovascular system do for your brain?",
+                    answers: ["Delivers oxygen to brain cells", "Only pumps blood to muscles", "Makes you feel tired", "Controls your emotions"],
+                    correct: 0,
+                    explanation: "Correct! Your heart and blood vessels deliver oxygen-rich blood to brain cells, helping you think clearly."
+                },
+                {
+                    question: "What life skills do endurance activities teach?",
+                    answers: ["Persistence and goal-setting", "Only physical strength", "How to avoid challenges", "Quick decision-making only"],
+                    correct: 0,
+                    explanation: "Correct! Activities like running teach you to set goals, work toward them, and not give up when things get difficult."
+                },
+                {
+                    question: "How do team sports develop your mind?",
+                    answers: ["Build communication and strategy skills", "Only improve physical fitness", "Make you competitive only", "Teach you to work alone"],
+                    correct: 0,
+                    explanation: "Correct! Team sports require talking with teammates, planning strategies, and thinking about group success."
+                },
+                {
+                    question: "What do individual activities like swimming teach?",
+                    answers: ["Self-discipline and personal responsibility", "Only swimming techniques", "How to avoid teamwork", "That winning is everything"],
+                    correct: 0,
+                    explanation: "Correct! Individual sports teach you to motivate yourself and take responsibility for your own improvement."
+                },
+                {
+                    question: "How are physical challenges similar to life challenges?",
+                    answers: ["Both require preparation, effort, and resilience", "They are completely different", "Physical challenges are easier", "Life challenges don't need preparation"],
+                    correct: 0,
+                    explanation: "Correct! Both physical and life challenges require you to prepare, work hard, and bounce back from setbacks."
+                },
+                {
+                    question: "What does pushing through fatigue during fitness tests teach your mind?",
+                    answers: ["To persevere through difficult tasks", "That exercise is punishment", "To avoid challenging situations", "That physical fitness isn't important"],
+                    correct: 0,
+                    explanation: "Correct! When you don't quit during physical challenges, you train your mind to persist through academic and personal difficulties too."
+                },
+                {
+                    question: "Which PE habits transfer to success in other areas of life?",
+                    answers: ["Showing up, trying your best, supporting others", "Only following rules", "Competing against everyone", "Avoiding difficult activities"],
+                    correct: 0,
+                    explanation: "Correct! The positive habits you practice in PE—attendance, effort, and teamwork—help you succeed in school and relationships."
+                },
+                {
+                    question: "How should you think about your body and mind?",
+                    answers: ["As interconnected parts of who you are", "As completely separate systems", "Body is more important than mind", "Mind is more important than body"],
+                    correct: 0,
+                    explanation: "Correct! Your physical and mental health work together as parts of your complete self—both are important for your overall wellbeing."
+                }
+                ]
+            },
+            2: { // Sports Nutrition & Energy Systems - Level 2 Quiz 2 (Ages 8-11)
+                quote: "To eat is a necessity, but to eat intelligently is an art.",
+                author: "François de La Rochefoucauld",
+                societyText: "Understanding nutrition for sports performance requires knowledge of how different foods fuel your body's energy systems. Carbohydrates are your body's preferred fuel source—they break down quickly to provide immediate energy for activities like sprinting or jumping. Complex carbohydrates (whole grains, fruits, vegetables) provide sustained energy, while simple carbohydrates (sugary snacks) give quick bursts but can cause energy crashes. Proteins are the building blocks that repair and strengthen muscles after exercise. Your body needs protein from sources like lean meats, fish, eggs, beans, and dairy to recover from PE activities and grow stronger. Fats provide long-term energy storage and help your body absorb important vitamins. Healthy fats from nuts, avocados, and olive oil support brain function and hormone production. Hydration is crucial because your body is about 60% water, and even small amounts of dehydration can reduce your performance and concentration. Timing matters too—eating a balanced meal 2-3 hours before PE gives you sustained energy, while a small snack 30 minutes before can provide a quick boost. After exercise, your body needs both carbohydrates to refuel and protein to repair muscles within 30 minutes for optimal recovery.",
+                questions: [
+                {
+                    question: "According to François de La Rochefoucauld, what makes eating an art?",
+                    answers: ["Eating intelligently", "Eating large amounts", "Eating only expensive foods", "Eating without thinking"],
+                    correct: 0,
+                    explanation: "Correct! Smart food choices based on understanding nutrition principles make eating an art form."
+                },
+                {
+                    question: "What is your body's preferred fuel source for immediate energy?",
+                    answers: ["Carbohydrates", "Proteins", "Fats", "Vitamins"],
+                    correct: 0,
+                    explanation: "Correct! Carbohydrates break down quickly to provide immediate energy for activities like running and jumping."
+                },
+                {
+                    question: "What's the difference between complex and simple carbohydrates?",
+                    answers: ["Complex provide sustained energy, simple give quick bursts", "They are exactly the same", "Complex are always unhealthy", "Simple carbohydrates are better for athletes"],
+                    correct: 0,
+                    explanation: "Correct! Complex carbs from whole foods provide steady energy, while simple carbs give quick energy but can cause crashes."
+                },
+                {
+                    question: "What is the main function of protein in sports nutrition?",
+                    answers: ["Repair and strengthen muscles", "Provide immediate energy", "Store energy for later", "Control body temperature"],
+                    correct: 0,
+                    explanation: "Correct! Proteins are building blocks that repair muscle tissue damaged during exercise and help build stronger muscles."
+                },
+                {
+                    question: "Which foods are good sources of protein for young athletes?",
+                    answers: ["Lean meats, fish, eggs, beans, and dairy", "Only candy and soda", "Just fruits and vegetables", "Only protein powder supplements"],
+                    correct: 0,
+                    explanation: "Correct! These whole food sources provide complete proteins with all essential amino acids needed for muscle repair and growth."
+                },
+                {
+                    question: "What role do healthy fats play in sports nutrition?",
+                    answers: ["Provide long-term energy and support brain function", "Only make you gain weight", "Have no nutritional value", "Should be completely avoided by athletes"],
+                    correct: 0,
+                    explanation: "Correct! Healthy fats provide sustained energy, help absorb vitamins, and support brain function and hormone production."
+                },
+                {
+                    question: "Why is proper hydration crucial for athletic performance?",
+                    answers: ["Your body is 60% water and dehydration reduces performance", "Water has no effect on performance", "Only professional athletes need to hydrate", "Dehydration actually improves concentration"],
+                    correct: 0,
+                    explanation: "Correct! Even mild dehydration can significantly reduce physical performance, concentration, and cognitive function."
+                },
+                {
+                    question: "When should you eat a balanced meal before PE class?",
+                    answers: ["2-3 hours before for sustained energy", "Right before class starts", "Only after PE class", "It doesn't matter when you eat"],
+                    correct: 0,
+                    explanation: "Correct! Eating 2-3 hours before allows time for digestion while providing sustained energy throughout your PE activities."
+                },
+                {
+                    question: "What should you eat within 30 minutes after intense exercise?",
+                    answers: ["Both carbohydrates and protein", "Only water", "Only protein", "Only carbohydrates"],
+                    correct: 0,
+                    explanation: "Correct! The post-exercise 'recovery window' requires carbs to refuel energy stores and protein to repair muscles."
+                },
+                {
+                    question: "What happens if you eat sugary snacks right before PE?",
+                    answers: ["Quick energy burst followed by a crash", "Sustained energy throughout class", "Better performance than complex carbs", "No effect on energy levels"],
+                    correct: 0,
+                    explanation: "Correct! Simple sugars cause blood sugar spikes and crashes, leading to fatigue during your PE activities."
+                }
+                ]
+            },
+            3: { // Leadership & Collaboration in Sports - Level 2 Quiz 3 (Ages 8-11)
+                quote: "The strength of the team is each individual member. The strength of each member is the team.",
+                author: "Phil Jackson",
+                societyText: "Effective teamwork in sports requires understanding different leadership styles and collaboration strategies. A team captain doesn't just give orders—they inspire, communicate clearly, and make decisions that benefit the whole group. Democratic leadership involves listening to everyone's ideas before making decisions, which often leads to better strategies and higher team morale. Some situations require quick, decisive leadership, while others benefit from group discussion and consensus. Good teammates understand their individual roles while supporting the team's overall objectives. Communication is the foundation of successful teamwork—this includes verbal communication (calling plays, giving encouragement), non-verbal communication (hand signals, body language), and active listening (paying attention to coaches and teammates). Conflict resolution skills are essential because disagreements naturally occur when competitive people work together. Learning to address problems constructively rather than letting them fester helps teams stay focused on their goals. Trust is built through consistent actions—showing up to practice, giving your best effort, and supporting teammates even when they make mistakes. The best teams celebrate individual achievements while maintaining focus on collective success, understanding that personal improvement strengthens the entire group.",
+                questions: [
+                {
+                    question: "According to Phil Jackson, what is the relationship between individual members and the team?",
+                    answers: ["They strengthen each other mutually", "Individuals are more important than the team", "The team is more important than individuals", "They have no relationship to each other"],
+                    correct: 0,
+                    explanation: "Correct! Strong individuals make strong teams, and strong teams help individuals reach their potential."
+                },
+                {
+                    question: "What does effective team leadership involve beyond giving orders?",
+                    answers: ["Inspiring, communicating clearly, and making group-beneficial decisions", "Only telling people what to do", "Making all decisions alone", "Avoiding responsibility for team outcomes"],
+                    correct: 0,
+                    explanation: "Correct! True leadership involves motivating others, clear communication, and decisions that help the whole team succeed."
+                },
+                {
+                    question: "What is democratic leadership in sports teams?",
+                    answers: ["Listening to everyone's ideas before making decisions", "Letting everyone do whatever they want", "Never making any decisions", "Only the coach can make decisions"],
+                    correct: 0,
+                    explanation: "Correct! Democratic leadership values input from all team members, leading to better strategies and higher morale."
+                },
+                {
+                    question: "When might a team need quick, decisive leadership instead of group discussion?",
+                    answers: ["During fast-paced game situations", "Never - discussion is always better", "Only when the coach is absent", "When players disagree about anything"],
+                    correct: 0,
+                    explanation: "Correct! Some situations require immediate decisions, while others benefit from team input and discussion."
+                },
+                {
+                    question: "What does good teamwork require from individual players?",
+                    answers: ["Understanding their role while supporting team objectives", "Only focusing on personal statistics", "Ignoring what teammates are doing", "Competing against their own teammates"],
+                    correct: 0,
+                    explanation: "Correct! Players must balance personal responsibility with commitment to team goals and success."
+                },
+                {
+                    question: "What are the three types of communication important in team sports?",
+                    answers: ["Verbal, non-verbal, and active listening", "Only shouting instructions", "Only hand signals", "Only listening to the coach"],
+                    correct: 0,
+                    explanation: "Correct! Effective teams use spoken communication, body language/signals, and careful listening to coordinate successfully."
+                },
+                {
+                    question: "Why are conflict resolution skills important for sports teams?",
+                    answers: ["Disagreements naturally occur and need constructive solutions", "Teams never have conflicts", "Conflicts always destroy teams", "Only coaches should resolve conflicts"],
+                    correct: 0,
+                    explanation: "Correct! When competitive people work together, disagreements happen—learning to resolve them constructively keeps teams focused."
+                },
+                {
+                    question: "How is trust built between teammates?",
+                    answers: ["Through consistent actions like showing up and giving best effort", "Only through winning games", "By avoiding mistakes completely", "Through individual achievements only"],
+                    correct: 0,
+                    explanation: "Correct! Trust develops when teammates consistently demonstrate reliability, effort, and support for each other."
+                },
+                {
+                    question: "How should teams handle individual achievements?",
+                    answers: ["Celebrate them while maintaining focus on collective success", "Ignore individual achievements completely", "Only focus on individual achievements", "Make individuals feel guilty for personal success"],
+                    correct: 0,
+                    explanation: "Correct! The best teams recognize individual accomplishments while keeping everyone focused on team goals."
+                },
+                {
+                    question: "What understanding helps teams balance individual and group success?",
+                    answers: ["Personal improvement strengthens the entire group", "Individual success hurts the team", "Team success doesn't matter for individuals", "Personal and team goals are always in conflict"],
+                    correct: 0,
+                    explanation: "Correct! When individuals improve their skills and performance, it makes the whole team stronger and more successful."
+                }
+                ]
+            },
+            4: { // Values in Sport - Year 1 Level
+                quote: "Sports do not build character. They reveal it.",
+                author: "Heywood Broun",
+                societyText: "Competition shows who we are inside. A fair player in football proves honesty under pressure. True value is in effort, not just the result - in PE, trying hard in fitness tests matters more than ranking. Reactions to failure show maturity, and losing a game is a chance to show respect. Respecting rules is central to values - following basketball fouls shows discipline. Integrity is about unseen actions, and honest self-scoring in PE tests shows true value. Cheating ruins the meaning of success - faking a time in running destroys fairness. Values shine when respecting everyone, and shaking hands after a match shows sportsmanship. Focus on becoming deserving, not just winning - training with discipline makes you worthy of success. Values surface when we're tested, and pushing through fatigue in PE shows determination. True value is respect without intimidation - facing stronger opponents respectfully shows courage.",
+                questions: [
+                {
+                    question: "What does sport reveal according to Heywood Broun?",
+                    answers: ["Character", "Strength only", "Talent only", "Luck"],
+                    correct: 0,
+                    explanation: "Correct! Sport shows inner values."
+                },
+                {
+                    question: "According to Zig Ziglar, what matters most?",
+                    answers: ["Effort", "Winning only", "Being first", "Avoiding loss"],
+                    correct: 0,
+                    explanation: "Correct! Effort builds value."
+                },
+                {
+                    question: "What reveals true character according to Gregg Popovich?",
+                    answers: ["Reaction to setbacks", "Always winning", "Ignoring rules", "Being perfect"],
+                    correct: 0,
+                    explanation: "Correct! Values appear in tough times."
+                },
+                {
+                    question: "What do sports teach according to Billie Jean King?",
+                    answers: ["Character & rules", "Only winning", "Ignoring mistakes", "Breaking rules"],
+                    correct: 0,
+                    explanation: "Correct! Values include discipline."
+                },
+                {
+                    question: "When is character tested most according to John Wooden?",
+                    answers: ["When no one watches", "In victory only", "When praised", "Only in public"],
+                    correct: 0,
+                    explanation: "Correct! Integrity is private honesty."
+                },
+                {
+                    question: "What is dishonest victory according to Gandhi?",
+                    answers: ["Defeat", "True success", "Real honor", "Teamwork"],
+                    correct: 0,
+                    explanation: "Correct! Fair play is essential."
+                },
+                {
+                    question: "Sportsmanship means?",
+                    answers: ["Respect", "Always winning", "Avoiding effort", "Ignoring rivals"],
+                    correct: 0,
+                    explanation: "Correct! Respect builds value."
+                },
+                {
+                    question: "What should we pray for according to Jose Rizal?",
+                    answers: ["To be worthy", "Easy wins", "No effort", "Rival's loss"],
+                    correct: 0,
+                    explanation: "Correct! Worthiness brings pride."
+                },
+                {
+                    question: "What do sports reveal about us?",
+                    answers: ["Our true selves", "Only strength", "Fame", "Only skills"],
+                    correct: 0,
+                    explanation: "Correct! Sport shows inner values."
+                },
+                {
+                    question: "What attitude reflects values?",
+                    answers: ["Respect all", "Fear everyone", "Ignore rules", "Avoid challenge"],
+                    correct: 0,
+                    explanation: "Correct! Respect with courage is key."
+                }
+                ]
+            },
+            5: { // Olympic Journey - Year 1 Level
+                quote: "The most important thing in the Olympic Games is not to win but to take part.",
+                author: "Pierre de Coubertin",
+                societyText: "The spirit of the Games values participation and courage more than medals. In PE, joining even without being the best shows effort and belonging. Progress is about personal bests and collective improvement - circuit training together helps everyone build fitness. The Games honor history while inspiring future generations, and learning traditional games in PE connects to cultural roots. The Games show humanity striving for peak performance - in PE, testing limits in sprints mirrors this pursuit. Heroes include medalists and those showing fairness or resilience, and helping an injured teammate is a form of heroism in PE. Courage means risking failure to grow - trying new skills in PE often starts with mistakes. Olympism is about harmony of fitness, discipline, and thought - PE builds not just strength but resilience and teamwork. Effort and dignity matter more than results, and giving maximum effort in games shows sportsmanship. Every athlete contributes to unity and inspiration - in PE, everyone's effort makes activities meaningful. The flame symbolizes hope and shared humanity, and passing a relay baton mirrors passing the flame.",
+                questions: [
+                {
+                    question: "What is most important in the Olympics according to Pierre de Coubertin?",
+                    answers: ["Taking part", "Winning", "Fame", "Sponsorship"],
+                    correct: 0,
+                    explanation: "Correct! Participation is the true Olympic spirit."
+                },
+                {
+                    question: "What does the Olympic motto 'Faster, Higher, Stronger – Together' highlight?",
+                    answers: ["Progress together", "Winning alone", "Being perfect", "Fame first"],
+                    correct: 0,
+                    explanation: "Correct! Growth comes from striving together."
+                },
+                {
+                    question: "What do the Olympics connect according to Avery Brundage?",
+                    answers: ["Past and future", "Fame and money", "Only winners", "Entertainment"],
+                    correct: 0,
+                    explanation: "Correct! Olympics bridge time."
+                },
+                {
+                    question: "What do the Olympics represent according to Dawn Fraser?",
+                    answers: ["Search for excellence", "Fun only", "Business", "Relaxation"],
+                    correct: 0,
+                    explanation: "Correct! Excellence drives the Games."
+                },
+                {
+                    question: "Where are heroes made?",
+                    answers: ["The Olympics", "Social media", "TV shows", "Everyday life only"],
+                    correct: 0,
+                    explanation: "Correct! Olympics inspire heroism."
+                },
+                {
+                    question: "What is needed for victory according to Jean-Claude Killy?",
+                    answers: ["Risk", "Avoiding challenges", "Playing safe always", "No effort"],
+                    correct: 0,
+                    explanation: "Correct! Risk brings growth."
+                },
+                {
+                    question: "What does Olympism balance according to the Olympic Charter?",
+                    answers: ["Body, will, mind", "Fame, wealth, luck", "Only body", "Mind only"],
+                    correct: 0,
+                    explanation: "Correct! It's about full human growth."
+                },
+                {
+                    question: "What matters most according to Pierre de Coubertin?",
+                    answers: ["Fighting well", "Winning only", "Cheating", "Quitting early"],
+                    correct: 0,
+                    explanation: "Correct! Dignity defines effort."
+                },
+                {
+                    question: "Who are the Olympic Games for?",
+                    answers: ["The world", "Winners only", "Celebrities", "Sponsors"],
+                    correct: 0,
+                    explanation: "Correct! Olympics unite all."
+                },
+                {
+                    question: "What does the Olympic torch represent?",
+                    answers: ["Spirit, knowledge, life", "Only fire", "Only victory", "Only tradition"],
+                    correct: 0,
+                    explanation: "Correct! The flame carries meaning."
+                }
+                ]
+            },
+            6: { // Know Your Body - Year 1 Level
+                quote: "Take care of your body. It's the only place you have to live.",
+                author: "Jim Rohn",
+                societyText: "The body is our lifelong home; caring for it keeps us strong. Stretching before class prevents injuries and shows respect for our physical self. Exercise fuels wellness - warm-ups lift mood and focus, preparing us for activity. Recovery rebuilds strength, and rest days help muscles grow stronger than before. Nutrition and mindset shape health from within - food and water boost PE results and energy levels. Stress or positivity affects energy, and relaxation drills show this mind-body link clearly. Exercise heals stress and low energy - jogging refreshes both body and mind together. Positive thoughts boost energy, and encouragement improves PE effort and performance. Progress is personal, not about others - beating your push-up score shows real growth. Nutrition builds energy and health - fruit before PE fuels activity and concentration. Focus drives endurance, and concentration helps in PE tests and challenges. The mind and body work as partners, each strengthening the other through care and attention.",
+                questions: [
+                {
+                    question: "Why should you care for your body according to Jim Rohn?",
+                    answers: ["It's your only home", "To impress people", "For short-term goals", "Because others say so"],
+                    correct: 0,
+                    explanation: "Correct! Health lasts a lifetime. Your body is the only place you have to live."
+                },
+                {
+                    question: "What creates the glow of good health according to Gene Tunney?",
+                    answers: ["Exercise", "Doing nothing", "Stress", "Ignoring activity"],
+                    correct: 0,
+                    explanation: "Correct! Movement builds health. Exercise fuels wellness and energy."
+                },
+                {
+                    question: "What makes you stronger according to the importance of rest?",
+                    answers: ["Rest", "Overwork", "Skipping meals", "No breaks"],
+                    correct: 0,
+                    explanation: "Correct! Rest fuels progress. Recovery rebuilds strength and helps muscles grow."
+                },
+                {
+                    question: "Where does a healthy outside start according to Robert Urich?",
+                    answers: ["Inside", "Makeup", "Fashion", "Ignoring care"],
+                    correct: 0,
+                    explanation: "Correct! Inner health shows outside. Nutrition and mindset shape health."
+                },
+                {
+                    question: "How do mind and body relate to each other?",
+                    answers: ["They affect each other", "Only body matters", "Only mind matters", "They are separate"],
+                    correct: 0,
+                    explanation: "Correct! They work together. Stress or positivity affects energy levels."
+                },
+                {
+                    question: "What is movement according to Carol Welch?",
+                    answers: ["Medicine", "Punishment", "Useless", "Entertainment only"],
+                    correct: 0,
+                    explanation: "Correct! Exercise heals. Movement heals stress and low energy."
+                },
+                {
+                    question: "What guides the body according to Naomi Judd?",
+                    answers: ["The mind", "Food only", "Coaches", "Sleep only"],
+                    correct: 0,
+                    explanation: "Correct! The mind directs action. Positive thoughts boost energy."
+                },
+                {
+                    question: "What is fitness really about?",
+                    answers: ["Self-improvement", "Beating others", "Winning always", "Showing off"],
+                    correct: 0,
+                    explanation: "Correct! Growth matters. Progress is personal, not about others."
+                },
+                {
+                    question: "What does food shape according to the saying 'You are what you eat'?",
+                    answers: ["Who you are", "Nothing", "Only appearance", "Taste only"],
+                    correct: 0,
+                    explanation: "Correct! Diet defines health. Nutrition builds energy and wellness."
+                },
+                {
+                    question: "What strengthens the body according to the mind-body connection?",
+                    answers: ["A strong mind", "Weak focus", "Quitting", "Avoiding effort"],
+                    correct: 0,
+                    explanation: "Correct! Mind and body empower each other. Focus drives endurance."
+                }
+                ]
+            },
+            7: { // Safe Moves - Year 1 Level
+                quote: "An ounce of prevention is worth a pound of cure.",
+                author: "Benjamin Franklin",
+                societyText: "Preventing problems is far easier than fixing them later. Safety habits protect health and prevent injuries that can take weeks or months to heal. Being safe requires awareness and careful choices, not luck or chance. Thinking ahead protects us from regret and serious consequences later. Taking time for safety saves lives and prevents long-term damage. Careful preparation leads to confident, safe action in all activities. Safety rules keep healthy people from becoming patients or getting hurt. Being safe costs nothing, but accidents cost health, time, and pain. Being cautious builds a safe environment for everyone to enjoy activities. Shortcuts can cause harm, but safe choices bring steady, lasting success. The choices we make now about safety secure tomorrow's health and wellbeing. In PE, warming up prevents injuries, proper equipment protects us, checking gear avoids accidents, wearing protection prevents serious harm, learning proper techniques allows confident performance, using mats and safety equipment keeps everyone unharmed, following signals avoids collisions, being cautious on wet surfaces prevents slips, using proper form protects our bodies, and making safe choices today ensures we can be active tomorrow.",
+                questions: [
+                {
+                    question: "What is better than cure according to Benjamin Franklin?",
+                    answers: ["Prevention", "Ignoring risk", "Pain", "Waiting for injury"],
+                    correct: 0,
+                    explanation: "Correct! Prevention saves effort. Preventing problems is far easier than fixing them later."
+                },
+                {
+                    question: "What ensures safety according to 'Safety doesn't happen by accident'?",
+                    answers: ["Careful actions", "Random chance", "Ignoring rules", "Taking risks"],
+                    correct: 0,
+                    explanation: "Correct! Safety is intentional. Being safe requires awareness and choices, not luck."
+                },
+                {
+                    question: "What is better than repairing according to the prevention quote?",
+                    answers: ["Preparing", "Forgetting", "Ignoring", "Waiting"],
+                    correct: 0,
+                    explanation: "Correct! Prevention avoids regret. Thinking ahead protects us from problems later."
+                },
+                {
+                    question: "What is worth more than rushing according to the life quote?",
+                    answers: ["Safety time", "Rushing", "Ignoring gear", "Skipping care"],
+                    correct: 0,
+                    explanation: "Correct! Safety always pays. Taking time for safety saves lives and prevents injury."
+                },
+                {
+                    question: "What should come first according to Napoleon Bonaparte?",
+                    answers: ["Preparation", "Rushing in", "Ignoring rules", "Not practicing"],
+                    correct: 0,
+                    explanation: "Correct! Preparation leads to safe action. Careful preparation first, confident action second."
+                },
+                {
+                    question: "What does safety do according to F.S. Hughes?",
+                    answers: ["Protects the uninjured", "Helps only injured", "Wastes time", "Slows learning"],
+                    correct: 0,
+                    explanation: "Correct! Safety prevents harm. Safety rules keep healthy people from becoming patients."
+                },
+                {
+                    question: "Which one hurts according to the accidents quote?",
+                    answers: ["Accidents", "Safety", "Care", "Preparation"],
+                    correct: 0,
+                    explanation: "Correct! Safety is painless. Being safe costs nothing, but accidents cost health."
+                },
+                {
+                    question: "What creates safety according to Thomas Fuller?",
+                    answers: ["Caution", "Ignoring signs", "Carelessness", "Overconfidence"],
+                    correct: 0,
+                    explanation: "Correct! Caution produces safety. Being cautious builds a safe environment for everyone."
+                },
+                {
+                    question: "What is the best way according to the safety quote?",
+                    answers: ["The safe way", "The fastest way", "The risky way", "The careless way"],
+                    correct: 0,
+                    explanation: "Correct! Safety is the best path. Safe choices bring steady, lasting success."
+                },
+                {
+                    question: "How do you protect the future according to the final quote?",
+                    answers: ["By protecting yourself today", "By ignoring safety", "By waiting for later", "By risking injury"],
+                    correct: 0,
+                    explanation: "Correct! Today's safety ensures tomorrow. The choices we make now secure future health."
+                }
+                ]
+            },
+            8: { // Fair Play First - Year 1 Level
+                quote: "What is right is not always popular, and what is popular is not always right.",
+                author: "Albert Einstein",
+                societyText: "Fair play means making the honest choice even when others don't. True character is tested when no one is watching - honesty is strongest without an audience. Dignity in winning and grace in losing reflect fairness and respect for all participants. Fair play means supporting teammates, not putting them down, and sharing opportunities with everyone. Sports reveal our true values through how we act in games and competitions. Balance in competition is the true goal of sport - playing fair, winning fair, losing fair. Fair play honors opponents while still competing fully, showing respect for all. The spirit of effort and fairness is more important than the result or final score. Respect for teammates, opponents, and the game itself is the foundation of fairness. Real achievement comes from honesty, not shortcuts - winning the right way builds true pride. In PE, admitting mistakes shows integrity, counting reps truthfully builds self-respect, shaking hands after matches shows respect regardless of result, passing the ball to share play shows fairness to all, respecting referees even in tough calls reveals good character, following rules shows respect for everyone's effort, listening to officials without arguing demonstrates respect, hustling and showing respect count more than the score, and scoring within the rules feels more rewarding than breaking them.",
+                questions: [
+                {
+                    question: "What defines fair play according to Albert Einstein's quote?",
+                    answers: ["Doing what's right", "Following the crowd", "Hiding mistakes", "Cheating if unseen"],
+                    correct: 0,
+                    explanation: "Correct! Integrity matters more than popularity. Fair play means making honest choices even when others don't."
+                },
+                {
+                    question: "When is character tested according to John Wooden?",
+                    answers: ["When no one is watching", "Only during exams", "In public only", "When praised"],
+                    correct: 0,
+                    explanation: "Correct! Fair play is private honesty. Honesty is strongest when there's no audience."
+                },
+                {
+                    question: "How should you lose according to Ralph Waldo Emerson?",
+                    answers: ["With grace", "With anger", "By blaming others", "By quitting"],
+                    correct: 0,
+                    explanation: "Correct! Fairness includes respect in loss. Dignity in winning and grace in losing reflect fairness."
+                },
+                {
+                    question: "What supports fair play according to Phil Jackson?",
+                    answers: ["Teamwork", "Favoritism", "Selfish play", "Excluding others"],
+                    correct: 0,
+                    explanation: "Correct! Sharing strengthens fairness. Fair play means supporting teammates, not putting them down."
+                },
+                {
+                    question: "What do sports reveal according to Heywood Broun?",
+                    answers: ["Character", "Only skill", "Only fitness", "Nothing important"],
+                    correct: 0,
+                    explanation: "Correct! Sports show inner values. How you act in games shows your true character."
+                },
+                {
+                    question: "What is the rule according to 'Play fair, win fair, lose fair'?",
+                    answers: ["Play fair", "Win at any cost", "Cheat when losing", "Bend rules"],
+                    correct: 0,
+                    explanation: "Correct! Fairness is universal. Balance in competition is the true goal of sport."
+                },
+                {
+                    question: "How should athletes treat others according to 'Respect all, fear none'?",
+                    answers: ["Respect all", "Fear opponents", "Ignore rivals", "Show arrogance"],
+                    correct: 0,
+                    explanation: "Correct! Respect is fairness in action. Fair play honors opponents while still competing fully."
+                },
+                {
+                    question: "What matters most according to Grantland Rice?",
+                    answers: ["How you play", "Only winning", "Avoiding effort", "The scoreboard"],
+                    correct: 0,
+                    explanation: "Correct! Fair play is in the process. The spirit of effort and fairness is more important than the result."
+                },
+                {
+                    question: "What is fair play based on according to the respect quote?",
+                    answers: ["Respect", "Only rules", "Anger", "Cheating"],
+                    correct: 0,
+                    explanation: "Correct! Respect builds fairness. Respect for teammates, opponents, and the game itself is the foundation."
+                },
+                {
+                    question: "What builds true pride according to the final quote?",
+                    answers: ["Winning honestly", "Cheating", "Lying", "Cutting corners"],
+                    correct: 0,
+                    explanation: "Correct! Honesty brings real victory. Real achievement comes from honesty, not shortcuts."
+                }
+                ]
+            },
+            9: { // PE in Society - Year 1 Level
+                quote: "Sport has the power to change the world.",
+                author: "Nelson Mandela",
+                societyText: "Sport unites communities, inspiring peace and breaking barriers between different groups of people. Even without words, people connect through play and shared activities that everyone can understand. Collective spirit influences outcomes more than individual talent alone - teamwork creates success. Fitness improves not only health but also creativity and energy for all aspects of life. Through play, people learn problem-solving and cooperation naturally without formal instruction. Strong citizens build strong societies, and PE promotes lifelong activity that reduces illness later in life. Sport mirrors life with victory, failure, and fairness teaching character and life lessons. Sport brings hope and common identity to diverse groups, creating joy and belonging for everyone. Participation builds friendships and support networks that extend beyond the playing field. A strong, active population shapes progress for everyone in the community and nation. In PE, school tournaments bring together students from different classes, games with simple rules allow everyone to join regardless of background, basketball teams with balance win more than those with only stars, regular exercise helps students concentrate better in class, games teach tactics and new skills naturally, PE promotes lifelong activity reducing future illness, losing in PE teaches resilience and humility, school sports days create joy and belonging, PE teams often grow into real-life friendships outside class, and students who stay active today grow into healthier adults tomorrow.",
+                questions: [
+                {
+                    question: "What power does sport have according to Nelson Mandela?",
+                    answers: ["Change the world", "Only entertain", "Divide people", "Create conflict"],
+                    correct: 0,
+                    explanation: "Correct! Sport builds unity."
+                },
+                {
+                    question: "What makes sport universal?",
+                    answers: ["It speaks to all", "Only uses language", "Excludes outsiders", "Works for experts only"],
+                    correct: 0,
+                    explanation: "Correct! Sport crosses barriers."
+                },
+                {
+                    question: "What decides success according to Babe Ruth?",
+                    answers: ["The team as a whole", "One player", "Luck", "Fame"],
+                    correct: 0,
+                    explanation: "Correct! Group effort wins."
+                },
+                {
+                    question: "What does fitness support according to John F. Kennedy?",
+                    answers: ["Creativity and activity", "Laziness", "Only strength", "Sleepiness"],
+                    correct: 0,
+                    explanation: "Correct! Fitness fuels life."
+                },
+                {
+                    question: "What is play according to Albert Einstein?",
+                    answers: ["Research", "Waste of time", "Only fun", "Ignoring learning"],
+                    correct: 0,
+                    explanation: "Correct! Play teaches and explores."
+                },
+                {
+                    question: "What is true wealth according to the saying?",
+                    answers: ["Health", "Money only", "Fame", "Talent alone"],
+                    correct: 0,
+                    explanation: "Correct! Healthy citizens strengthen society."
+                },
+                {
+                    question: "What lessons does sport give according to Billie Jean King?",
+                    answers: ["Character and fairness", "Only winning", "Only fitness", "None"],
+                    correct: 0,
+                    explanation: "Correct! Sport builds life lessons."
+                },
+                {
+                    question: "What can sport inspire according to Nelson Mandela?",
+                    answers: ["Unity", "Division", "Violence", "Isolation"],
+                    correct: 0,
+                    explanation: "Correct! Sport unites."
+                },
+                {
+                    question: "What is sport about according to the community quote?",
+                    answers: ["Community", "Only winning", "Money", "Fame"],
+                    correct: 0,
+                    explanation: "Correct! Sport connects people."
+                },
+                {
+                    question: "What is the greatest asset according to Winston Churchill?",
+                    answers: ["Healthy citizens", "Gold medals", "Fame", "Money"],
+                    correct: 0,
+                    explanation: "Correct! Health is the nation's strength."
+                }
+                ]
+            }
+        };
+
+        // Login System
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (username && password) {
+                currentUser = username;
+                document.getElementById('welcome-text').textContent = `Welcome, ${username}!`;
+                updateDashboard();
+                showScreen('dashboard-screen');
+            }
+        });
+
+        // Screen Navigation
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        // Update Dashboard
+        function updateDashboard() {
+            const totalCompleted = Object.values(userProgress).reduce((sum, level) => sum + level.completed.length, 0);
+            const totalQuizzes = 60; // 6 levels × 10 quizzes each
+            const overallProgress = Math.round((totalCompleted / totalQuizzes) * 100);
+            
+            document.getElementById('overall-progress').textContent = `${overallProgress}%`;
+            document.getElementById('quiz-progress-bar').style.width = `${(userProgress.level1.completed.length / 10) * 100}%`;
+            document.getElementById('quiz-progress-text').textContent = `Level 1: ${userProgress.level1.completed.length} of 10 quizzes completed`;
+            document.getElementById('total-quizzes').textContent = totalCompleted;
+            
+            if (userProgress.level1.scores.length > 0) {
+                const avgScore = Math.round(userProgress.level1.scores.reduce((a, b) => a + b, 0) / userProgress.level1.scores.length);
+                document.getElementById('avg-score').textContent = `${avgScore}%`;
+            }
+            
+            document.getElementById('next-unlock').textContent = 10 - userProgress.level1.completed.length;
+        }
+
+        // Initialize Sports Grid
+        function initializeSportsGrid() {
+            const sportsGrid = document.getElementById('sports-grid');
+            sportsGrid.innerHTML = '';
+            
+            sportsData.forEach(sport => {
+                const sportCard = document.createElement('div');
+                sportCard.className = 'sport-card';
+                sportCard.innerHTML = `
+                    <div class="sport-icon">${sport.icon}</div>
+                    <div class="sport-name">${sport.name}</div>
+                `;
+                sportCard.onclick = () => showSportLessons(sport.name, sport.icon);
+                sportsGrid.appendChild(sportCard);
+            });
+        }
+
+        // Show Sport Lessons
+        function showSportLessons(sportName, sportIcon) {
+            currentSport = sportName;
+            document.getElementById('sport-lessons-title').innerHTML = `${sportIcon} ${sportName} Lessons`;
+            
+            // Initialize sport progress if not exists
+            if (!sportProgress[sportName]) {
+                sportProgress[sportName] = sportLessons.map(() => ({ progress: 0, assessments: {} }));
+            }
+            
+            const lessonsGrid = document.getElementById('sport-lessons-grid');
+            lessonsGrid.innerHTML = '';
+            
+            sportLessons.forEach((lesson, index) => {
+                const lessonProgress = sportProgress[sportName][index].progress;
+                const lessonCard = document.createElement('div');
+                
+                // Add lesson type styling
+                let typeClass = '';
+                let typeColor = '';
+                switch(lesson.type) {
+                    case 'baseline':
+                        typeClass = 'baseline-lesson';
+                        typeColor = '#6c757d';
+                        break;
+                    case 'formative':
+                        typeClass = 'formative-lesson';
+                        typeColor = '#17a2b8';
+                        break;
+                    case 'comparison':
+                        typeClass = 'comparison-lesson';
+                        typeColor = '#ffc107';
+                        break;
+                    case 'summative':
+                        typeClass = 'summative-lesson';
+                        typeColor = '#dc3545';
+                        break;
+                }
+                
+                lessonCard.className = `quiz-topic-card ${typeClass}`;
+                
+                // Add progress indicator
+                let progressClass = '';
+                let progressIndicator = '';
+                if (lessonProgress === 100) {
+                    progressClass = 'completed';
+                    progressIndicator = `<div class="quiz-score">100%</div>`;
+                } else if (lessonProgress > 0) {
+                    progressIndicator = `<div class="quiz-score">${lessonProgress}%</div>`;
+                }
+                
+                lessonCard.className += ` ${progressClass}`;
+                lessonCard.innerHTML = `
+                    <div class="sport-icon">${lesson.icon}</div>
+                    <div class="sport-name">${lesson.name}</div>
+                    <small style="font-weight: 500; color: #333; margin-top: 5px; display: block;">${lesson.topic}</small>
+                    ${progressIndicator}
+                    <div class="progress-bar" style="margin-top: 10px;">
+                        <div class="progress-fill" style="width: ${lessonProgress}%; background: ${typeColor};"></div>
+                    </div>
+                `;
+                
+                lessonCard.onclick = () => showLesson(index, sportName, sportIcon);
+                lessonsGrid.appendChild(lessonCard);
+            });
+
+            // Add Assessment Dashboard button as the 11th tile
+            const assessmentCard = document.createElement('div');
+            assessmentCard.className = 'quiz-topic-card assessment-dashboard-tile';
+            assessmentCard.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+            assessmentCard.style.color = 'white';
+            assessmentCard.innerHTML = `
+                <div class="sport-icon">📊</div>
+                <div class="sport-name">Final Assessment</div>
+                <small style="font-weight: 500; color: rgba(255,255,255,0.9); margin-top: 5px; display: block;">5-Skill Mastery Matrix</small>
+            `;
+            assessmentCard.onclick = () => showScreen('assessment-dashboard-screen');
+            lessonsGrid.appendChild(assessmentCard);
+            
+            showScreen('sport-lessons-screen');
+        }
+
+        // Initialize Quiz Levels
+        function initializeQuizLevels() {
+            const container = document.getElementById('quiz-levels-container');
+            container.innerHTML = '';
+            
+            yearLevels.forEach((yearLevel, index) => {
+                const levelButton = document.createElement('div');
+                const isUnlocked = true; // All levels are now unlocked
+                const completed = userProgress[yearLevel.id].completed.length;
+                
+                levelButton.className = `level-button ${!isUnlocked ? 'locked' : ''}`;
+                levelButton.innerHTML = `
+                    <div class="level-number">${yearLevel.icon}</div>
+                    <div>${yearLevel.name}</div>
+                    <small>${yearLevel.ages}</small>
+                    <small style="color: #666; margin-top: 5px;">${yearLevel.description}</small>
+                    <div class="level-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${(completed / 10) * 100}%"></div>
+                        </div>
+                        <small>${completed}/10 completed</small>
+                    </div>
+                    ${!isUnlocked ? '<div class="lock-icon">🔒</div>' : ''}
+                `;
+                
+                if (isUnlocked) {
+                    levelButton.onclick = () => showQuizTopics(yearLevel.id);
+                }
+                
+                container.appendChild(levelButton);
+            });
+        }
+
+        // Show Quiz Topics
+        function showQuizTopics(levelId) {
+            currentLevel = levelId;
+            const level = yearLevels.find(l => l.id === levelId);
+            document.getElementById('quiz-level-title').innerHTML = `${level.icon} ${level.name} Quizzes`;
+            
+            const topicsGrid = document.getElementById('quiz-topics-grid');
+            topicsGrid.innerHTML = '';
+            
+            quizTopics.forEach((topic, index) => {
+                const isUnlocked = true; // All topics are now unlocked within each level
+                const isCompleted = userProgress[levelId].completed.includes(index);
+                const score = isCompleted ? userProgress[levelId].scores[userProgress[levelId].completed.indexOf(index)] : null;
+                
+                const topicCard = document.createElement('div');
+                topicCard.className = `quiz-topic-card ${!isUnlocked ? 'locked' : ''} ${isCompleted ? 'completed' : ''}`;
+                topicCard.innerHTML = `
+                    <div class="sport-icon">${topic.icon}</div>
+                    <div class="sport-name">${topic.name}</div>
+                    <small>${topic.description}</small>
+                    ${!isUnlocked ? '<div class="lock-icon">🔒</div>' : ''}
+                    ${isCompleted ? `<div class="quiz-score">${score}%</div>` : ''}
+                `;
+                
+                if (isUnlocked) {
+                    topicCard.onclick = () => startQuiz(index, topic.name);
+                }
+                
+                topicsGrid.appendChild(topicCard);
+            });
+            
+            showScreen('quiz-topics-screen');
+        }
+
+        // Start Quiz
+        function startQuiz(quizIndex, quizName) {
+            currentQuiz = quizIndex;
+            currentQuestion = 0;
+            quizAnswers = [];
+            
+            const quizData = quizContent[quizIndex];
+            if (quizData) {
+                document.getElementById('quote-text').textContent = `"${quizData.quote}"`;
+                document.getElementById('quote-author').textContent = `- ${quizData.author}`;
+                document.getElementById('society-text').textContent = quizData.societyText;
+            }
+            
+            document.getElementById('quiz-title').textContent = quizName;
+            
+            // Show intro, hide questions
+            document.getElementById('quiz-intro').style.display = 'block';
+            document.getElementById('quiz-header').style.display = 'none';
+            document.getElementById('quiz-questions').style.display = 'none';
+            
+            showScreen('quiz-screen');
+        }
+
+        // Start Quiz Questions
+        function startQuizQuestions() {
+            document.getElementById('quiz-intro').style.display = 'none';
+            document.getElementById('quiz-header').style.display = 'block';
+            document.getElementById('quiz-questions').style.display = 'block';
+            
+            // Reset button visibility
+            document.getElementById('start-quiz-btn').style.display = 'inline-block';
+            document.getElementById('return-quiz-btn').style.display = 'none';
+            
+            loadQuestion();
+        }
+
+        // Show Quiz Intro (for reviewing text during quiz)
+        function showQuizIntro() {
+            document.getElementById('quiz-intro').style.display = 'block';
+            document.getElementById('quiz-header').style.display = 'none';
+            document.getElementById('quiz-questions').style.display = 'none';
+            
+            // Show return button, hide start button
+            document.getElementById('start-quiz-btn').style.display = 'none';
+            document.getElementById('return-quiz-btn').style.display = 'inline-block';
+        }
+
+        // Return to Questions
+        function returnToQuestions() {
+            document.getElementById('quiz-intro').style.display = 'none';
+            document.getElementById('quiz-header').style.display = 'block';
+            document.getElementById('quiz-questions').style.display = 'block';
+            
+            // Show start button, hide return button
+            document.getElementById('start-quiz-btn').style.display = 'inline-block';
+            document.getElementById('return-quiz-btn').style.display = 'none';
+        }
+
+        // Load Question
+        function loadQuestion() {
+            const quizData = quizContent[currentQuiz];
+            const questions = quizData ? quizData.questions : generateSampleQuestions();
+            const question = questions[currentQuestion];
+            
+            document.getElementById('question-counter').textContent = `Question ${currentQuestion + 1} of 10`;
+            document.getElementById('quiz-progress-fill').style.width = `${((currentQuestion + 1) / 10) * 100}%`;
+            document.getElementById('question-text').textContent = question.question;
+            
+            const answersGrid = document.getElementById('answers-grid');
+            answersGrid.innerHTML = '';
+            
+            question.answers.forEach((answer, index) => {
+                const answerBtn = document.createElement('button');
+                answerBtn.className = 'answer-btn';
+                answerBtn.textContent = answer;
+                answerBtn.onclick = () => selectAnswer(index);
+                answersGrid.appendChild(answerBtn);
+            });
+            
+            document.getElementById('explanation').classList.remove('show');
+            document.getElementById('next-btn').disabled = true;
+        }
+
+        // Select Answer
+        function selectAnswer(selectedIndex) {
+            const quizData = quizContent[currentQuiz];
+            const questions = quizData ? quizData.questions : generateSampleQuestions();
+            const question = questions[currentQuestion];
+            const answerBtns = document.querySelectorAll('.answer-btn');
+            
+            // Disable all buttons
+            answerBtns.forEach(btn => btn.style.pointerEvents = 'none');
+            
+            // Show correct/incorrect
+            answerBtns.forEach((btn, index) => {
+                if (index === question.correct) {
+                    btn.classList.add('correct');
+                } else if (index === selectedIndex && index !== question.correct) {
+                    btn.classList.add('incorrect');
+                }
+            });
+            
+            // Store answer
+            quizAnswers.push({
+                question: currentQuestion,
+                selected: selectedIndex,
+                correct: question.correct,
+                isCorrect: selectedIndex === question.correct
+            });
+            
+            // Show explanation
+            document.getElementById('explanation-text').textContent = question.explanation;
+            document.getElementById('explanation').classList.add('show');
+            document.getElementById('next-btn').disabled = false;
+        }
+
+        // Next Question
+        function nextQuestion() {
+            currentQuestion++;
+            
+            if (currentQuestion < 10) {
+                loadQuestion();
+            } else {
+                showQuizResults();
+            }
+        }
+
+        // Show Quiz Results
+        function showQuizResults() {
+            const correctAnswers = quizAnswers.filter(a => a.isCorrect).length;
+            const score = Math.round((correctAnswers / 10) * 100);
+            
+            document.getElementById('final-score').textContent = `${score}%`;
+            document.getElementById('correct-answers').textContent = correctAnswers;
+            document.getElementById('incorrect-answers').textContent = 10 - correctAnswers;
+            
+            // Update feedback
+            let feedback = "";
+            if (score >= 90) feedback = "Excellent! You've mastered this topic!";
+            else if (score >= 80) feedback = "Great job! You have a strong understanding.";
+            else if (score >= 70) feedback = "Good work! Review the areas you missed.";
+            else feedback = "Keep studying! You'll improve with practice.";
+            
+            document.getElementById('results-feedback').textContent = feedback;
+            document.getElementById('performance-analysis').textContent = 
+                `You answered ${correctAnswers} out of 10 questions correctly. ${score >= 80 ? 'Excellent understanding of the key concepts!' : 'Focus on reviewing the explanations for questions you missed.'}`;
+            
+            // Update progress
+            if (!userProgress[currentLevel].completed.includes(currentQuiz)) {
+                userProgress[currentLevel].completed.push(currentQuiz);
+                userProgress[currentLevel].scores.push(score);
+                updateDashboard();
+            }
+            
+            showScreen('quiz-results-screen');
+        }
+
+        // Generate Sample Questions (fallback)
+        function generateSampleQuestions() {
+            return Array(10).fill().map((_, i) => ({
+                question: `Sample question ${i + 1} for this topic?`,
+                answers: ["Option A", "Option B", "Option C", "Option D"],
+                correct: Math.floor(Math.random() * 4),
+                explanation: "This is a sample explanation for the correct answer."
+            }));
+        }
+
+        // Initialize App
+        function initializeApp() {
+            initializeSportsGrid();
+            initializeQuizLevels();
+            updateDashboard();
+        }
+
+        // Show Individual Lesson
+        function showLesson(lessonIndex, sportName, sportIcon) {
+            currentLesson = lessonIndex;
+            const lesson = lessonContent[lessonIndex];
+            
+            // Update lesson header
+            document.getElementById('lesson-title').innerHTML = `${lesson.title}`;
+            document.getElementById('lesson-main-title').textContent = lesson.title;
+            document.getElementById('lesson-purpose-text').textContent = lesson.purpose;
+            document.getElementById('main-exercise-text').textContent = lesson.mainExercise;
+            document.getElementById('exercise-purpose-text').textContent = lesson.exercisePurpose;
+            
+            // Load assessment criteria
+            loadAssessmentCriteria(lesson.assessmentCriteria);
+            
+            // Load existing progress
+            loadExistingProgress(sportName, lessonIndex);
+            
+            showScreen('lesson-screen');
+        }
+
+        // Load Assessment Criteria
+        function loadAssessmentCriteria(criteria) {
+            // Motor Skills (2 criteria, 25% each = 50% total)
+            const motorContainer = document.getElementById('motor-criteria');
+            motorContainer.innerHTML = '';
+            criteria.motorSkills.forEach((criterion, index) => {
+                const criterionDiv = document.createElement('div');
+                criterionDiv.className = 'criterion-item';
+                criterionDiv.innerHTML = `
+                    <input type="checkbox" class="criterion-checkbox" id="motor-${index}" onchange="updateProgress()">
+                    <label for="motor-${index}" class="criterion-text">${criterion}</label>
+                `;
+                motorContainer.appendChild(criterionDiv);
+            });
+
+            // Methodological Skills (1 criterion = 25% total)
+            const methodContainer = document.getElementById('methodological-criteria');
+            methodContainer.innerHTML = '';
+            criteria.methodological.forEach((criterion, index) => {
+                const criterionDiv = document.createElement('div');
+                criterionDiv.className = 'criterion-item';
+                criterionDiv.innerHTML = `
+                    <input type="checkbox" class="criterion-checkbox" id="methodological-${index}" onchange="updateProgress()">
+                    <label for="methodological-${index}" class="criterion-text">${criterion}</label>
+                `;
+                methodContainer.appendChild(criterionDiv);
+            });
+
+            // Social Skills (1 criterion = 25% total)
+            const socialContainer = document.getElementById('social-criteria');
+            socialContainer.innerHTML = '';
+            criteria.social.forEach((criterion, index) => {
+                const criterionDiv = document.createElement('div');
+                criterionDiv.className = 'criterion-item';
+                criterionDiv.innerHTML = `
+                    <input type="checkbox" class="criterion-checkbox" id="social-${index}" onchange="updateProgress()">
+                    <label for="social-${index}" class="criterion-text">${criterion}</label>
+                `;
+                socialContainer.appendChild(criterionDiv);
+            });
+        }
+
+        // Load Existing Progress
+        function loadExistingProgress(sportName, lessonIndex) {
+            if (sportProgress[sportName] && sportProgress[sportName][lessonIndex]) {
+                const assessments = sportProgress[sportName][lessonIndex].assessments;
+                
+                // Load motor skills checkboxes
+                Object.keys(assessments).forEach(key => {
+                    const checkbox = document.getElementById(key);
+                    if (checkbox && assessments[key]) {
+                        checkbox.checked = true;
+                        checkbox.parentElement.classList.add('checked');
+                    }
+                });
+            }
+            updateProgress();
+        }
+
+        // Update Progress in Real-time
+        function updateProgress() {
+            // Count checked items in each category
+            const motorChecked = document.querySelectorAll('#motor-criteria input:checked').length;
+            const methodChecked = document.querySelectorAll('#methodological-criteria input:checked').length;
+            const socialChecked = document.querySelectorAll('#social-criteria input:checked').length;
+
+            // Calculate progress (Motor: 2×25%=50%, Method: 1×25%=25%, Social: 1×25%=25%)
+            const motorProgress = (motorChecked / 2) * 50; // 2 criteria worth 25% each
+            const methodProgress = methodChecked * 25; // 1 criterion worth 25%
+            const socialProgress = socialChecked * 25; // 1 criterion worth 25%
+            const totalProgress = motorProgress + methodProgress + socialProgress;
+
+            // Update visual progress bars
+            document.querySelector('.motor-progress').style.width = `${(motorChecked / 2) * 100}%`;
+            document.querySelector('.motor-text').textContent = `${motorProgress}%`;
+
+            document.querySelector('.methodological-progress').style.width = `${methodChecked * 100}%`;
+            document.querySelector('.methodological-text').textContent = `${methodProgress}%`;
+
+            document.querySelector('.social-progress').style.width = `${socialChecked * 100}%`;
+            document.querySelector('.social-text').textContent = `${socialProgress}%`;
+
+            document.querySelector('.overall-progress-fill').style.width = `${totalProgress}%`;
+            document.querySelector('.overall-progress-text').textContent = `${totalProgress}% Complete`;
+
+            // Update checkbox styling
+            document.querySelectorAll('.criterion-item').forEach(item => {
+                const checkbox = item.querySelector('input');
+                if (checkbox.checked) {
+                    item.classList.add('checked');
+                } else {
+                    item.classList.remove('checked');
+                }
+            });
+        }
+
+        // Save Progress
+        function saveProgress() {
+            if (!currentSport || currentLesson === null) return;
+
+            // Collect all checked assessments
+            const assessments = {};
+            document.querySelectorAll('.criterion-checkbox').forEach(checkbox => {
+                assessments[checkbox.id] = checkbox.checked;
+            });
+
+            // Calculate total progress
+            const motorChecked = document.querySelectorAll('#motor-criteria input:checked').length;
+            const methodChecked = document.querySelectorAll('#methodological-criteria input:checked').length;
+            const socialChecked = document.querySelectorAll('#social-criteria input:checked').length;
+            const totalProgress = (motorChecked / 2) * 50 + methodChecked * 25 + socialChecked * 25;
+
+            // Save to sport progress
+            if (!sportProgress[currentSport]) {
+                sportProgress[currentSport] = sportLessons.map(() => ({ progress: 0, assessments: {} }));
+            }
+            
+            sportProgress[currentSport][currentLesson] = {
+                progress: Math.round(totalProgress),
+                assessments: assessments
+            };
+
+            // Show success message
+            alert(`Progress saved! Lesson completion: ${Math.round(totalProgress)}%`);
+            
+            // Update save button
+            document.getElementById('save-progress-btn').innerHTML = '✅ Progress Saved';
+            setTimeout(() => {
+                document.getElementById('save-progress-btn').innerHTML = '💾 Save Progress';
+            }, 2000);
+        }
+
+        // Reset Assessment
+        function resetAssessment() {
+            if (confirm('Are you sure you want to reset all assessments for this lesson?')) {
+                document.querySelectorAll('.criterion-checkbox').forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                updateProgress();
+            }
+        }
+
+        // Return to Sport Lessons
+        function returnToSportLessons() {
+            if (currentSport) {
+                const sport = sportsData.find(s => s.name === currentSport);
+                if (sport) {
+                    showSportLessons(currentSport, sport.icon);
+                    return;
+                }
+            }
+            showScreen('sport-lessons-screen');
+        }
+
+        // Show Skill Criteria Modal
+        function showSkillCriteria(skillKey, currentLevel) {
+            const skill = skillProgressionCriteria[skillKey];
+            if (!skill) return;
+
+            // Update modal content
+            document.getElementById('modal-skill-icon').textContent = skill.icon;
+            document.getElementById('modal-skill-name').textContent = skill.name;
+            document.getElementById('modal-skill-description').textContent = skill.description;
+
+            // Build level criteria grid
+            const criteriaGrid = document.getElementById('level-criteria-grid');
+            criteriaGrid.innerHTML = '';
+
+            for (let level = 1; level <= 4; level++) {
+                const criteriaItem = document.createElement('div');
+                criteriaItem.className = `level-criteria-item level-${level}`;
+                
+                if (level === currentLevel) {
+                    criteriaItem.classList.add('current');
+                }
+
+                criteriaItem.innerHTML = `
+                    <div class="level-header">
+                        <div class="level-title">Level ${level}: ${getLevelName(level)}</div>
+                        ${level === currentLevel ? '<div class="current-badge">Your Current Level</div>' : ''}
+                    </div>
+                    <div class="level-description">${skill.levels[level]}</div>
+                `;
+
+                criteriaGrid.appendChild(criteriaItem);
+            }
+
+            // Show modal
+            document.getElementById('skill-criteria-modal').classList.add('show');
+        }
+
+        // Close Skill Criteria Modal
+        function closeSkillModal() {
+            document.getElementById('skill-criteria-modal').classList.remove('show');
+        }
+
+        // Get Level Name
+        function getLevelName(level) {
+            const levelNames = {
+                1: 'Developing',
+                2: 'Capable', 
+                3: 'Proficient',
+                4: 'Master'
+            };
+            return levelNames[level] || 'Unknown';
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('skill-criteria-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeSkillModal();
+            }
+        });
+
+        // Initialize when page loads
+        window.addEventListener('load', initializeApp);
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'988ae8a2b0bde708',t:'MTc1OTQ3ODQ1Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
